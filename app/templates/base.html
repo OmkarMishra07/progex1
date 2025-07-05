@@ -44,7 +44,7 @@
                 
                 <!-- Right Side of Navbar -->
                 <div class="flex items-center">
-                    <!-- Desktop Navigation Links (hidden on small screens) -->
+                    <!-- Desktop Navigation Links (only visible if logged in) -->
                     <div class="hidden sm:flex sm:items-center sm:space-x-4">
                         {% if session.leetcode_username %}
                             <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Dashboard</a>
@@ -61,24 +61,25 @@
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
 
-                    <!-- Hamburger Button (only visible on small screens, i.e., "sm:hidden") -->
+                    <!-- Hamburger Button (only visible on small screens AND if logged in) -->
+                    {% if session.leetcode_username %}
                     <div class="ml-2 sm:hidden">
                         <button id="hamburger-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                             <span class="sr-only">Open main menu</span>
-                            <!-- Hamburger Icon -->
                             <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
         <!-- Mobile Menu (hidden by default, toggled by JS) -->
-        <div class="hidden" id="mobile-menu">
+        <div class="hidden sm:hidden" id="mobile-menu">
             {% if session.leetcode_username %}
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Dashboard</a>
                 <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Daily</a>
                 <a href="{{ url_for('friends.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Friends</a>
