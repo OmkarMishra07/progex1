@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Friends | Progex 👑{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div>
+        <h1 class="text-3xl font-bold">Manage Friends</h1>
+        <p class="text-slate-500 dark:text-slate-400">Add friends to compare stats and see their activity.</p>
+    </div>
+
+    <!-- Add Friend Form -->
+    <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold mb-4">Add a New Friend</h2>
+        <form action="{{ url_for('friends.friends_page') }}" method="POST" class="flex flex-col sm:flex-row gap-4">
+            <input type="text" name="friend_username" class="flex-grow w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Enter friend's LeetCode username" required>
+            <button type="submit" class="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
+                Add Friend
+            </button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="mt-2 text-sm {% if category == 'error' %}text-red-500{% else %}text-green-500{% endif %}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Friend List -->
+    <div>
+        <h2 class="text-2xl font-bold mb-4">Your Friends</h2>
+        {% if friends %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for friend in friends %}
+            <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md flex flex-col justify-between">
+                <div class="flex items-center space-x-4 mb-4">
+                    <img class="h-14 w-14 rounded-full" src="{{ friend.avatar }}" alt="{{ friend.username }}'s Avatar">
+                    <div>
+                        <h3 class="text-lg font-bold">{{ friend.username }}</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Total Solved: {{ friend.totalSolved }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold">🔥 {{ friend.streak }} Day Streak</span>
+                    <form action="{{ url_for('friends.remove_friend', friend_username=friend.username) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this friend?');">
+                        <button type="submit" class="text-sm text-red-500 hover:text-red-700 font-semibold">Remove</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-slate-500 dark:text-slate-400">You haven't added any friends yet. Add one above to get started!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

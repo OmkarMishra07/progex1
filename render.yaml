@@ -1,0 +1,19 @@
+services:
+  # This defines your Flask web application service
+  - type: web
+    name: progex
+    env: python # The environment is Python
+    plan: free # Use Render's free tier
+    
+    # Commands Render runs during deployment
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn run:app"
+
+    # Environment variables Render will set for your app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.6
+      # This tells your Flask app where to find the secret Firebase key file
+      - key: FIREBASE_CREDENTIALS_PATH
+        value: /etc/secrets/serviceAccountKey.json
+      # We will set the SECRET_KEY in the Render dashboard later

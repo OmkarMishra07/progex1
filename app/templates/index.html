@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Progex 👑{% endblock %}
+
+{% block content %}
+<div class="text-center py-16 sm:py-24">
+    <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
+        Your Personal <span class="text-indigo-500">LeetCode</span> Dashboard
+    </h1>
+    <p class="mt-4 max-w-2xl mx-auto text-lg sm:text-xl text-slate-500 dark:text-slate-400">
+        Track your progress, compete with friends, and conquer the daily challenge. All in one place.
+    </p>
+    
+    <form action="{{ url_for('main.home') }}" method="POST" class="mt-10 max-w-md mx-auto">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input type="text" name="leetcode_username" id="leetcode_username"
+                   class="flex-grow w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                   placeholder="Enter your LeetCode username" required>
+            <button type="submit"
+                    class="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
+                View My Dashboard
+            </button>
+        </div>
+        {% if error %}
+            <p class="mt-2 text-red-500 text-sm">{{ error }}</p>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

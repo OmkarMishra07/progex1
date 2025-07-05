@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Challenge | Progex 👑{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold">Today's Daily Challenge</h1>
+        <p class="text-slate-500 dark:text-slate-400">Build discipline, one problem at a time.</p>
+    </div>
+
+    {% if daily %}
+    <div class="bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md space-y-4">
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold">{{ daily.title }}</h2>
+            <span class="px-3 py-1 text-sm font-bold rounded-full difficulty-{{ daily.difficulty.lower() }}">{{ daily.difficulty.upper() }}</span>
+        </div>
+        
+        {% if is_completed %}
+        <div class="flex items-center space-x-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 p-4 rounded-md">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <p class="font-semibold">You've already completed today's challenge! Great job!</p>
+        </div>
+        {% else %}
+        <div class="flex items-center space-x-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 p-4 rounded-md">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <p class="font-semibold">Status: Pending</p>
+        </div>
+        {% endif %}
+
+        <a href="{{ daily.link }}" target="_blank" class="block w-full text-center bg-indigo-600 text-white font-semibold px-6 py-4 rounded-md hover:bg-indigo-700 text-lg">
+            Go to Problem →
+        </a>
+    </div>
+    {% else %}
+    <div class="bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md text-center">
+        <h2 class="text-2xl font-bold">Oops!</h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-2">We couldn't load the daily challenge right now. Please try again later.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Progex 👑{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    
+    <!-- Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for data visualization on the leaderboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    
+    <!-- 
+      Inline script to prevent Flash of Unstyled Content (FOUC) for dark mode.
+      This runs before the page content is rendered to set the theme correctly.
+    -->
+    <script>
+        // Apply theme on initial load based on localStorage or system preference
+        if (localStorage.getItem('theme') === 'dark' || 
+           (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Configure Tailwind CSS to use the 'class' strategy for dark mode
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS for elements not easily handled by Tailwind -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Classes for problem difficulty colors */
+        .difficulty-easy { color: #4ade80; } /* green-400 */
+        .difficulty-medium { color: #facc15; } /* yellow-400 */
+        .difficulty-hard { color: #f87171; } /* red-400 */
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased selection:bg-indigo-500 selection:text-white">
+    
+    <!-- Sticky Navigation Bar -->
+    <nav class="bg-white/75 dark:bg-slate-900/75 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo / Site Name -->
+                <div class="flex items-center">
+                    <a href="{{ url_for('main.home') }}" class="font-bold text-2xl">Progex 👑</a>
+                </div>
+                
+                <!-- Main Navigation Links -->
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    {% if session.leetcode_username %}
+                        <!-- This block is only visible when the user is logged in -->
+                        <!-- 'hidden sm:block' makes links hide on small screens -->
+                        <a href="{{ url_for('dashboard.user_dashboard') }}" class="hidden sm:block text-sm font-medium hover:text-indigo-500 transition-colors">Dashboard</a>
+                        <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="hidden sm:block text-sm font-medium hover:text-indigo-500 transition-colors">Daily</a>
+                        <a href="{{ url_for('friends.friends_page') }}" class="hidden sm:block text-sm font-medium hover:text-indigo-500 transition-colors">Friends</a>
+                        <a href="{{ url_for('friends.leaderboard_page') }}" class="hidden sm:block text-sm font-medium hover:text-indigo-500 transition-colors">Leaderboard</a>
+                        <a href="{{ url_for('challenges.challenges_page') }}" class="hidden sm:block text-sm font-medium hover:text-indigo-500 transition-colors">Challenges</a>
+                        <a href="{{ url_for('main.logout') }}" class="hidden sm:block text-sm font-medium hover:text-indigo-500 transition-colors">Logout</a>
+                    {% endif %}
+                    
+                    <!-- Dark Mode Toggle Button -->
+                    <button id="theme-toggle" type="button" class="p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <!-- The content from other templates will be injected here -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Link to external JavaScript file -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
