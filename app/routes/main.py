@@ -1,35 +1,33 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.services import leetcode_api, firebase_service
+from flask import Blueprint, render_template, redirect, url_for, session
 
 bp = Blueprint('main', __name__)
 
-@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/')
 def home():
-    if request.method == 'POST':
-        username = request.form.get('leetcode_username')
-        if username:
-            # Check if user exists on LeetCode (using our mock API)
-            user_data = leetcode_api.get_user_stats(username)
-            if user_data:
-                # Add user to our Firebase DB
-                firebase_service.add_or_update_user(username)
-                # Store username in session
-                session['leetcode_username'] = username
-                return redirect(url_for('dashboard.user_dashboard'))
-            else:
-                # TODO: Add flash message for "user not found"
-                return render_template('index.html', error="LeetCode user not found.")
-    return render_template('index.html')
+    """
+    Acts as the main entry point. Redirects users based on login status.
+    """
+    if 'leetcode_username' in session:
+        return redirect(url_for('dashboard.user_dashboard'))
+    else:
+        return redirect(url_for('auth.login'))
+
 
 @bp.route('/logout')
 def logout():
-    session.pop('leetcode_username', None)
-    return redirect(url_for('main.home'))
-# ... (keep existing imports and home/logout routes) ...
+    """
+    Logs the user out by clearing the session.
+    """
+    session.clear()
+    return redirect(url_for('auth.login'))
+
+
 @bp.route('/settings')
 def settings_page():
+    """
+    A placeholder route for the future settings page.
+    """
     if not session.get('leetcode_username'):
-        return redirect(url_for('main.home'))
+        return redirect(url_for('auth.login'))
     
-    # This is a placeholder for now.
     return render_template('settings.html')

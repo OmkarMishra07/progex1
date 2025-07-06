@@ -3,3 +3,4 @@ gunicorn
 firebase-admin
 httpx
 python-dotenv
+Flask-Mail
