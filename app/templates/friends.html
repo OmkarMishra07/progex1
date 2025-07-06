@@ -12,12 +12,16 @@
     <!-- Add Friend Form -->
     <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
         <h2 class="text-xl font-bold mb-4">Add a New Friend</h2>
-        <form action="{{ url_for('friends.friends_page') }}" method="POST" class="flex flex-col sm:flex-row gap-4">
+        
+        <!-- THIS IS THE FIX: The form action now correctly points to 'social.friends_page' -->
+        <form action="{{ url_for('social.friends_page') }}" method="POST" class="flex flex-col sm:flex-row gap-4">
             <input type="text" name="friend_username" class="flex-grow w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Enter friend's LeetCode username" required>
             <button type="submit" class="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
                 Add Friend
             </button>
         </form>
+        
+        <!-- This section for displaying messages remains the same -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -43,7 +47,8 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="font-semibold">🔥 {{ friend.streak }} Day Streak</span>
-                    <form action="{{ url_for('friends.remove_friend', friend_username=friend.username) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this friend?');">
+                    <!-- FIX: The remove form action now correctly points to 'social.remove_friend' -->
+                    <form action="{{ url_for('social.remove_friend', friend_username=friend.username) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this friend?');">
                         <button type="submit" class="text-sm text-red-500 hover:text-red-700 font-semibold">Remove</button>
                     </form>
                 </div>
