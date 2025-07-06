@@ -1,10 +1,7 @@
 {% extends "base.html" %}
-
 {% block title %}{{ stats.username }}'s Dashboard | Progex 👑{% endblock %}
-
 {% block content %}
 <div class="space-y-8">
-    <!-- User Header -->
     <div class="flex items-center space-x-4">
         <img class="h-20 w-20 rounded-full" src="{{ stats.avatar }}" alt="User Avatar">
         <div>
@@ -12,42 +9,35 @@
             <p class="text-slate-500 dark:text-slate-400">Competitive Coding Dashboard</p>
         </div>
     </div>
-
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Total Solved -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
             <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Solved</h3>
             <p class="mt-2 text-4xl font-bold">{{ stats.totalSolved }}</p>
         </div>
-        <!-- Difficulty Breakdown -->
-        <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-2">
-            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Difficulty Breakdown</h3>
-            <div class="mt-3 grid grid-cols-3 gap-4 text-center">
-                <div>
-                    <p class="text-2xl font-bold difficulty-easy">{{ stats.easySolved }}</p>
-                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">✅ EASY</p>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold difficulty-medium">{{ stats.mediumSolved }}</p>
-                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">🟡 MEDIUM</p>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold difficulty-hard">{{ stats.hardSolved }}</p>
-                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">🔴 HARD</p>
-                </div>
-            </div>
+        <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
+            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Overall Rank</h3>
+            <p class="mt-2 text-4xl font-bold">
+                {% if stats.globalRanking != 'N/A' %}
+                    <span class="text-indigo-400">#</span>{{ stats.globalRanking }}
+                {% else %}
+                    {{ stats.globalRanking }}
+                {% endif %}
+            </p>
         </div>
-        <!-- Current Streak -->
         <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
             <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Current Streak</h3>
             <p class="mt-2 text-4xl font-bold">🔥 {{ stats.streak }} Days</p>
         </div>
+        <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
+            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Difficulty Breakdown</h3>
+            <div class="mt-3 grid grid-cols-3 gap-4 text-center">
+                <div><p class="text-2xl font-bold difficulty-easy">{{ stats.easySolved }}</p><p class="text-xs font-semibold text-slate-500 dark:text-slate-400">✅ EASY</p></div>
+                <div><p class="text-2xl font-bold difficulty-medium">{{ stats.mediumSolved }}</p><p class="text-xs font-semibold text-slate-500 dark:text-slate-400">🟡 MEDIUM</p></div>
+                <div><p class="text-2xl font-bold difficulty-hard">{{ stats.hardSolved }}</p><p class="text-xs font-semibold text-slate-500 dark:text-slate-400">🔴 HARD</p></div>
+            </div>
+        </div>
     </div>
-
-    <!-- Main Content Area -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Recent Problems List -->
         <div class="lg:col-span-2">
             <h2 class="text-2xl font-bold mb-4">Recent Problems Solved</h2>
             <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-md overflow-hidden">
@@ -55,16 +45,8 @@
                     {% for problem in problems %}
                     <li class="px-6 py-4">
                         <div class="flex items-center justify-between">
-                            <div>
-                                <a href="https://leetcode.com/problems/{{ problem.titleSlug }}" target="_blank" class="text-lg font-semibold hover:text-indigo-500">{{ problem.title }}</a>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">Language: {{ problem.lang }}</p>
-                            </div>
-                            <span class="text-sm text-slate-500 dark:text-slate-400">
-                                <!-- Display the submission status with conditional coloring -->
-                                <span class="font-medium {% if problem.statusDisplay == 'Accepted' %}text-green-500{% else %}text-red-500{% endif %}">
-                                    {{ problem.statusDisplay }}
-                                </span>
-                            </span>
+                            <div><a href="https://leetcode.com/problems/{{ problem.titleSlug }}" target="_blank" class="text-lg font-semibold hover:text-indigo-500">{{ problem.title }}</a><p class="text-sm text-slate-500 dark:text-slate-400">Language: {{ problem.lang }}</p></div>
+                            <span class="text-sm text-slate-500 dark:text-slate-400"><span class="font-medium {% if problem.statusDisplay == 'Accepted' %}text-green-500{% else %}text-red-500{% endif %}">{{ problem.statusDisplay }}</span></span>
                         </div>
                     </li>
                     {% else %}
@@ -73,38 +55,20 @@
                 </ul>
             </div>
         </div>
-        
-        <!-- Daily Challenge Card -->
         <div class="lg:col-span-1">
             <h2 class="text-2xl font-bold mb-4">Daily Challenge</h2>
-            
-            <!-- This 'if' block makes the card dynamic -->
             {% if daily %}
             <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
-                <div class="flex justify-between items-start">
-                    <h3 class="text-xl font-bold">{{ daily.title }}</h3>
-                    <span class="px-3 py-1 text-sm font-bold rounded-full difficulty-{{ daily.difficulty.lower() }}">{{ daily.difficulty.upper() }}</span>
-                </div>
-                
+                <div class="flex justify-between items-start"><h3 class="text-xl font-bold">{{ daily.title }}</h3><span class="px-3 py-1 text-sm font-bold rounded-full difficulty-{{ daily.difficulty.lower() }}">{{ daily.difficulty.upper() }}</span></div>
                 <p class="mt-2 text-slate-500 dark:text-slate-400">Official challenge from LeetCode to build discipline.</p>
-                
                 {% if is_completed %}
-                    <!-- Show this if the challenge is done -->
-                    <div class="mt-4 flex items-center justify-center space-x-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 p-3 rounded-md">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span class="font-semibold">Completed! Well done.</span>
-                    </div>
+                    <div class="mt-4 flex items-center justify-center space-x-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 p-3 rounded-md"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span class="font-semibold">Completed! Well done.</span></div>
                 {% else %}
-                    <!-- Show this if the challenge is pending -->
-                    <a href="{{ daily.link }}" target="_blank" class="mt-4 inline-block w-full text-center bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700">
-                        Solve Now →
-                    </a>
+                    <a href="{{ daily.link }}" target="_blank" class="mt-4 inline-block w-full text-center bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700">Solve Now →</a>
                 {% endif %}
             </div>
             {% else %}
-            <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md text-center">
-                <p class="text-slate-500">Could not load the daily challenge.</p>
-            </div>
+            <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md text-center"><p class="text-slate-500">Could not load the daily challenge.</p></div>
             {% endif %}
         </div>
     </div>
