@@ -33,41 +33,34 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased selection:bg-indigo-500 selection:text-white">
     
-    <!-- Sticky Navigation Bar -->
     <nav class="bg-white/75 dark:bg-slate-900/75 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo / Site Name -->
                 <div class="flex items-center">
-                    <!-- The logo now links to the dashboard if logged in, otherwise the login page -->
                     <a href="{{ url_for('dashboard.user_dashboard') if session.leetcode_username else url_for('auth.login') }}" class="font-bold text-2xl">Progex 👑</a>
                 </div>
                 
-                <!-- Right Side of Navbar -->
                 <div class="flex items-center">
-                    <!-- Desktop Navigation Links -->
                     <div class="hidden sm:flex sm:items-center sm:space-x-4">
                         {% if session.leetcode_username %}
-                            <!-- Links for LOGGED IN users -->
                             <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Dashboard</a>
                             <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Daily</a>
-                            <a href="{{ url_for('friends.friends_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Friends</a>
-                            <a href="{{ url_for('friends.leaderboard_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Leaderboard</a>
+                            <!-- THE FIX: Use 'social.friends_page' and 'social.leaderboard_page' -->
+                            <a href="{{ url_for('social.friends_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Friends</a>
+                            <a href="{{ url_for('social.leaderboard_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Leaderboard</a>
                             <a href="{{ url_for('challenges.challenges_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Challenges</a>
                             <a href="{{ url_for('main.logout') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Logout</a>
                         {% else %}
-                            <!-- Links for LOGGED OUT users -->
                             <a href="{{ url_for('auth.login') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Login</a>
                             <a href="{{ url_for('auth.register') }}" class="ml-2 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Register</a>
                         {% endif %}
                     </div>
                     
-                    <!-- Dark Mode Toggle Button (always visible) -->
                     <button id="theme-toggle" type="button" class="ml-4 p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
 
-                    <!-- Hamburger Button (only visible on small screens) -->
+                    {% if session.leetcode_username %}
                     <div class="ml-2 sm:hidden">
                         <button id="hamburger-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                             <span class="sr-only">Open main menu</span>
@@ -76,33 +69,30 @@
                             </svg>
                         </button>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Menu (hidden by default, content changes based on login status) -->
         <div class="hidden sm:hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 {% if session.leetcode_username %}
-                    <!-- Mobile links for LOGGED IN users -->
                     <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Dashboard</a>
                     <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Daily</a>
-                    <a href="{{ url_for('friends.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Friends</a>
-                    <a href="{{ url_for('friends.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Leaderboard</a>
+                    <!-- THE FIX: Use 'social.friends_page' and 'social.leaderboard_page' -->
+                    <a href="{{ url_for('social.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Friends</a>
+                    <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Leaderboard</a>
                     <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Challenges</a>
                     <a href="{{ url_for('main.logout') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Logout</a>
                 {% else %}
-                    <!-- Mobile links for LOGGED OUT users -->
                     <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Login</a>
                     <a href="{{ url_for('auth.register') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Register</a>
                 {% endif %}
             </div>
         </div>
     </nav>
-
-    <!-- Main Content Area with Flash Messages -->
+    
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <!-- Display Flashed Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="space-y-2 mb-6">

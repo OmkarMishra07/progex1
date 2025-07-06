@@ -1,15 +1,11 @@
-# ==============================================================================
-# Friends & Leaderboard Routes
-# ------------------------------------------------------------------------------
-# This file defines the routes for all social features.
-# All friend username inputs are converted to lowercase for consistency.
-# ==============================================================================
+# app/routes/friends.py
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.services import firebase_service, leetcode_api
 import json
 
-bp = Blueprint('friends', __name__)
+# THE FIX: Using a unique internal name for the blueprint
+bp = Blueprint('social', __name__)
 
 
 @bp.route('/friends', methods=['GET', 'POST'])
@@ -19,9 +15,7 @@ def friends_page():
         return redirect(url_for('main.home'))
 
     if request.method == 'POST':
-        # FIX: Convert friend's username to lowercase
         friend_username = request.form.get('friend_username', '').lower()
-        
         if friend_username and friend_username != main_username:
             if leetcode_api.get_user_stats(friend_username):
                 firebase_service.add_friend(main_username, friend_username)
@@ -31,10 +25,9 @@ def friends_page():
         elif friend_username == main_username:
             flash("You cannot add yourself as a friend.", "error")
         
-        return redirect(url_for('friends.friends_page'))
+        return redirect(url_for('social.friends_page')) # Use 'social' here now
     
     friend_usernames = firebase_service.get_friends(main_username)
-    
     friends_data = []
     for username in friend_usernames:
         stats = leetcode_api.get_user_stats(username)
@@ -50,10 +43,9 @@ def remove_friend(friend_username):
     if not main_username:
         return redirect(url_for('main.home'))
     
-    # FIX: Ensure username is lowercase for removal operation
     firebase_service.remove_friend(main_username, friend_username.lower())
     flash(f"Removed {friend_username} from your friends.", "success")
-    return redirect(url_for('friends.friends_page'))
+    return redirect(url_for('social.friends_page')) # Use 'social' here now
 
 
 @bp.route('/leaderboard')
