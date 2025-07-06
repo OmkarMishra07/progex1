@@ -30,29 +30,41 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased selection:bg-indigo-500 selection:text-white">
     
+    <!-- Sticky Navigation Bar -->
     <nav class="bg-white/75 dark:bg-slate-900/75 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Main Navbar Container: Uses flex and justify-between -->
             <div class="flex items-center justify-between h-16">
+                
+                <!-- Left Side: Logo -->
                 <div class="flex-shrink-0">
                     <a href="{{ url_for('dashboard.user_dashboard') if session.leetcode_username else url_for('auth.login') }}" class="font-bold text-2xl">Progex 👑</a>
                 </div>
-                <div class="hidden sm:flex sm:items-center sm:space-x-4">
-                    {% if session.leetcode_username %}
-                        <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Dashboard</a>
-                        <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Daily</a>
-                        <a href="{{ url_for('social.friends_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Friends</a>
-                        <a href="{{ url_for('social.leaderboard_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Leaderboard</a>
-                        <a href="{{ url_for('challenges.challenges_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Challenges</a>
-                        <a href="{{ url_for('main.logout') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Logout</a>
-                    {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Login</a>
-                        <a href="{{ url_for('auth.register') }}" class="ml-2 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Register</a>
-                    {% endif %}
-                </div>
+
+                <!-- Right Side Container: This holds all other items -->
                 <div class="flex items-center">
-                    <button id="theme-toggle" type="button" class="p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    
+                    <!-- Desktop Links (Visible on 'sm' screens and up) -->
+                    <div class="hidden sm:flex sm:items-center sm:space-x-4">
+                        {% if session.leetcode_username %}
+                            <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Dashboard</a>
+                            <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Daily</a>
+                            <a href="{{ url_for('social.friends_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Friends</a>
+                            <a href="{{ url_for('social.leaderboard_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Leaderboard</a>
+                            <a href="{{ url_for('challenges.challenges_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Challenges</a>
+                            <a href="{{ url_for('main.logout') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Login</a>
+                            <a href="{{ url_for('auth.register') }}" class="ml-2 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Register</a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dark Mode Toggle Button -->
+                    <button id="theme-toggle" type="button" class="ml-4 p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
+
+                    <!-- Hamburger Button (Visible on mobile only, if logged in) -->
                     {% if session.leetcode_username %}
                     <div class="ml-2 sm:hidden">
                         <button id="hamburger-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
@@ -64,6 +76,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Mobile Menu (Hidden by default, shown on mobile when hamburger is clicked) -->
         <div class="hidden sm:hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 {% if session.leetcode_username %}
@@ -80,6 +94,7 @@
             </div>
         </div>
     </nav>
+
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -94,16 +109,13 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
-    <!-- ========= FIREBASE SECTION ========= -->
     {% if not session.leetcode_username %}
-    <!-- Load Firebase compat libraries only for logged-out users -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-    
     <script>
-      // YOUR UNIQUE FIREBASE CONFIGURATION
       const firebaseConfig = {
         apiKey: "AIzaSyDB6-LBI3NTUdhqVOSpYo9FSISbUNTZzG0",
         authDomain: "progex-97b50.firebaseapp.com",
@@ -113,15 +125,9 @@
         appId: "1:803295179415:web:a31310745066cda5bfafd2",
         measurementId: "G-JCTYVPL4S4"
       };
-
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
     </script>
-    
-    <!-- Link to our javascript file for Google Auth logic -->
     <script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>
     {% endif %}
-    <!-- ========= END OF FIREBASE SECTION ========= -->
-
 </body>
 </html>
