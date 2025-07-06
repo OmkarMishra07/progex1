@@ -11,7 +11,7 @@
     </div>
     
     <!-- Login Form -->
-    <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-6 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md">
+    <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-4 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md">
         <!-- Email Field -->
         <div>
             <label for="email" class="block text-sm font-medium">Email</label>
@@ -44,8 +44,23 @@
             </button>
         </div>
 
+        <!-- OR Separator -->
+        <div class="relative flex pt-2 pb-1 items-center">
+            <div class="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
+            <span class="flex-shrink mx-4 text-slate-500 dark:text-slate-400 text-xs uppercase">OR</span>
+            <div class="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
+        </div>
+
+        <!-- Google Sign-In Button -->
+        <div>
+            <button type="button" id="google-signin-btn" class="w-full flex justify-center items-center py-2.5 px-4 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none">
+                <img class="h-5 w-5 mr-3" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo">
+                Continue with Google
+            </button>
+        </div>
+
         <!-- Link to Registration Page -->
-        <p class="text-center text-sm">
+        <p class="text-center text-sm pt-4">
             Don't have an account?
             <a href="{{ url_for('auth.register') }}" class="font-medium text-indigo-500 hover:underline">
                 Register here
