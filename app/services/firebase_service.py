@@ -28,18 +28,9 @@ def get_user_by_email(email):
         return doc.to_dict()
     return None
 
-def add_or_update_user(username):
-    """Creates a user document if it doesn't exist."""
-    if not username:
-        return False
-    db = _get_db()
-    user_ref = db.collection('users').document(username)
-    user_ref.set({'leetcode_username': username}, merge=True)
-    return True
-
 def create_unverified_user(username, email, otp):
     """Creates a user with an OTP, but not yet verified."""
-    db = _get_db() # <--- THIS IS ONE OF THE LINES THAT WAS FIXED
+    db = _get_db()
     user_ref = db.collection('users').document(username)
     expiration = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=10)
     
@@ -60,6 +51,27 @@ def verify_user_and_set_password(username, password_hash):
         'is_verified': True,
         'otp': firestore.DELETE_FIELD,
         'otp_expires': firestore.DELETE_FIELD
+    })
+
+def set_password_reset_otp(username, otp):
+    """Sets a temporary OTP for password reset."""
+    db = _get_db() # <-- THIS LINE WAS MISSING
+    user_ref = db.collection('users').document(username)
+    expiration = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=10)
+    
+    user_ref.update({
+        'reset_otp': otp,
+        'reset_otp_expires': expiration
+    })
+
+def reset_password(username, new_password_hash):
+    """Updates the user's password and removes the reset OTP."""
+    db = _get_db() # <-- THIS LINE WAS LIKELY ALSO MISSING
+    user_ref = db.collection('users').document(username)
+    user_ref.update({
+        'password_hash': new_password_hash,
+        'reset_otp': firestore.DELETE_FIELD,
+        'reset_otp_expires': firestore.DELETE_FIELD
     })
 
 def add_friend(main_username, friend_username):
@@ -83,27 +95,6 @@ def remove_friend(main_username, friend_username):
         'friends': firestore.ArrayRemove([friend_username])
     })
     return True
-# app/services/firebase_service.py
-# ... (add these two new functions) ...
-
-def set_password_reset_otp(username, otp):
-    """Sets a temporary OTP for password reset."""
-    user_ref = db.collection('users').document(username)
-    expiration = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=10)
-    
-    user_ref.update({
-        'reset_otp': otp,
-        'reset_otp_expires': expiration
-    })
-
-def reset_password(username, new_password_hash):
-    """Updates the user's password and removes the reset OTP."""
-    user_ref = db.collection('users').document(username)
-    user_ref.update({
-        'password_hash': new_password_hash,
-        'reset_otp': firestore.DELETE_FIELD,
-        'reset_otp_expires': firestore.DELETE_FIELD
-    })
 
 def get_friends(main_username):
     """Retrieves the list of friends for a user."""
