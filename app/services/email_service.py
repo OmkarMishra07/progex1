@@ -1,61 +1,59 @@
-# app/services/email_service.py
+# ==============================================================================
+# Email Sending Service
+# ------------------------------------------------------------------------------
+# This file handles all logic for sending emails, such as OTPs for
+# verification and password resets.
+# ==============================================================================
+
 import traceback
 from flask_mail import Message
-from flask import current_app # <--- Import current_app
-
-# We will get the mail object from the app context, not the global scope
-# from app import mail  <--- DELETE OR COMMENT OUT THIS LINE
+from app import mail # Import the globally defined mail object
+from flask import current_app
 
 def send_otp_email(to_email, otp):
     """Sends an email with the OTP for verification."""
-    # Get the mail object from the currently running app
-    mail = current_app.extensions.get('mail')
-    if not mail:
-        print("!!!!!!!! Mail extension not found on current_app. Check your __init__.py !!!!!!!!!!")
-        return False
-        
     try:
-        msg = Message(
-            'Your Progex Verification Code',
-            recipients=[to_email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER'] # Explicitly set sender
-        )
-        msg.body = f'Your verification code for Progex is: {otp}\n\nThis code will expire in 10 minutes.'
-        mail.send(msg)
-        print(f"Successfully sent verification email to {to_email}")
+        # The `with mail.app.app_context()` block ensures that the email is sent
+        # within the context of the fully configured Flask application.
+        # This is the most reliable way to send emails with Flask-Mail.
+        with mail.app.app_context():
+            msg = Message(
+                subject='Your Progex Verification Code',
+                sender=('Progex', current_app.config['MAIL_DEFAULT_SENDER']),
+                recipients=[to_email]
+            )
+            msg.body = f'Your verification code for Progex is: {otp}\n\nThis code will expire in 10 minutes.'
+            
+            mail.send(msg)
+        
+        print(f"INFO: Successfully processed send_otp_email for {to_email}")
         return True
     except Exception as e:
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(f"FAILED TO SEND VERIFICATION EMAIL to {to_email}")
-        print(f"ERROR TYPE: {type(e).__name__}")
-        print(f"ERROR DETAILS: {e}")
-        traceback.print_exc()
+        print(f"ERROR: FAILED TO SEND VERIFICATION EMAIL to {to_email}")
+        traceback.print_exc() # Prints the full error for debugging
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         return False
 
 def send_password_reset_email(to_email, otp):
     """Sends an email with the OTP for password reset."""
-    # Get the mail object from the currently running app
-    mail = current_app.extensions.get('mail')
-    if not mail:
-        print("!!!!!!!! Mail extension not found on current_app. Check your __init__.py !!!!!!!!!!")
-        return False
-
     try:
-        msg = Message(
-            'Your Progex Password Reset Code',
-            recipients=[to_email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER'] # Explicitly set sender
-        )
-        msg.body = f'Your password reset code for Progex is: {otp}\n\nThis code will expire in 10 minutes. If you did not request this, you can safely ignore this email.'
-        mail.send(msg)
-        print(f"Successfully sent password reset email to {to_email}")
+        # Using the same robust context block for this email function
+        with mail.app.app_context():
+            msg = Message(
+                subject='Your Progex Password Reset Code',
+                sender=('Progex', current_app.config['MAIL_DEFAULT_SENDER']),
+                recipients=[to_email]
+            )
+            msg.body = f'Your password reset code for Progex is: {otp}\n\nThis code will expire in 10 minutes. If you did not request this, you can safely ignore this email.'
+            
+            mail.send(msg)
+            
+        print(f"INFO: Successfully processed send_password_reset_email for {to_email}")
         return True
     except Exception as e:
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(f"FAILED TO SEND PASSWORD RESET EMAIL to {to_email}")
-        print(f"ERROR TYPE: {type(e).__name__}")
-        print(f"ERROR DETAILS: {e}")
-        traceback.print_exc()
+        print(f"ERROR: FAILED TO SEND PASSWORD RESET EMAIL to {to_email}")
+        traceback.print_exc() # Prints the full error for debugging
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         return False
