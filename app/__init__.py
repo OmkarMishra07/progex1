@@ -1,3 +1,4 @@
+# app/__init__.py
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask import Flask
@@ -25,7 +26,7 @@ def create_app(config_class=Config):
     db_client = firestore.client()
     app.config['DB'] = db_client
     
-    # --- Import and Register ALL Blueprints ---
+    # --- Register ALL Blueprints ---
     from .routes.main import bp as main_bp
     app.register_blueprint(main_bp)
 
@@ -38,7 +39,7 @@ def create_app(config_class=Config):
     from .routes.challenges import bp as challenges_bp
     app.register_blueprint(challenges_bp)
 
-    # THIS IS THE LINE THAT FIXES THE ERROR. IT MUST BE PRESENT.
+    # THIS IS THE CRITICAL LINE THAT WAS MISSING
     from .routes.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
 

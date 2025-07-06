@@ -45,7 +45,7 @@
                         {% if session.leetcode_username %}
                             <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Dashboard</a>
                             <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Daily</a>
-                            <!-- THE FIX: Use 'social.friends_page' and 'social.leaderboard_page' -->
+                            <!-- FIX: Use 'social' for friends and leaderboard links -->
                             <a href="{{ url_for('social.friends_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Friends</a>
                             <a href="{{ url_for('social.leaderboard_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Leaderboard</a>
                             <a href="{{ url_for('challenges.challenges_page') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Challenges</a>
@@ -79,7 +79,7 @@
                 {% if session.leetcode_username %}
                     <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Dashboard</a>
                     <a href="{{ url_for('dashboard.daily_challenge_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Daily</a>
-                    <!-- THE FIX: Use 'social.friends_page' and 'social.leaderboard_page' -->
+                    <!-- FIX: Use 'social' for friends and leaderboard links -->
                     <a href="{{ url_for('social.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Friends</a>
                     <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Leaderboard</a>
                     <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Challenges</a>
