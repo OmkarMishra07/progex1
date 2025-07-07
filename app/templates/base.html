@@ -26,6 +26,21 @@
         .difficulty-easy { color: #4ade80; }
         .difficulty-medium { color: #facc15; }
         .difficulty-hard { color: #f87171; }
+
+        /* --- CSS FOR THE LOADING SPINNER --- */
+        .loader {
+            border: 2px solid #f3f3f3; /* Light grey */
+            border-top: 2px solid #3b82f6; /* Tailwind's blue-500 */
+            border-radius: 50%;
+            width: 1rem; /* 16px */
+            height: 1rem; /* 16px */
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased selection:bg-indigo-500 selection:text-white">
@@ -34,17 +49,14 @@
     <nav class="bg-white/75 dark:bg-slate-900/75 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                
                 <!-- Left Side: Logo -->
                 <div class="flex-shrink-0">
-                    <!-- THIS IS THE FIX: The logo now links to the new landing page (main.home) when logged out -->
                     <a href="{{ url_for('dashboard.user_dashboard') if session.leetcode_username else url_for('main.home') }}" class="font-bold text-2xl">Progex 👑</a>
                 </div>
 
-                <!-- Right Side Container: This holds all other items -->
+                <!-- Right Side Container -->
                 <div class="flex items-center">
-                    
-                    <!-- Desktop Links (Visible on 'sm' screens and up) -->
+                    <!-- Desktop Links -->
                     <div class="hidden sm:flex sm:items-center sm:space-x-4">
                         {% if session.leetcode_username %}
                             <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-sm font-medium hover:text-indigo-500 transition-colors">Dashboard</a>
@@ -64,7 +76,7 @@
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
 
-                    <!-- Hamburger Button (Visible on mobile only, if logged in) -->
+                    <!-- Hamburger Button (Mobile) -->
                     {% if session.leetcode_username %}
                     <div class="ml-2 sm:hidden">
                         <button id="hamburger-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
@@ -77,7 +89,7 @@
             </div>
         </div>
 
-        <!-- Mobile Menu (Hidden by default, shown on mobile when hamburger is clicked) -->
+        <!-- Mobile Menu -->
         <div class="hidden sm:hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 {% if session.leetcode_username %}
@@ -110,9 +122,14 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- ========= SCRIPTS SECTION ========= -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
+    <!-- This new script handles the loading state for forms -->
+    <script src="{{ url_for('static', filename='js/form_handler.js') }}"></script>
+    
     {% if not session.leetcode_username %}
+    <!-- Firebase scripts for Google Sign-In (only loaded when logged out) -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
     <script>
@@ -129,5 +146,6 @@
     </script>
     <script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>
     {% endif %}
+    <!-- ========= END OF SCRIPTS SECTION ========= -->
 </body>
 </html>

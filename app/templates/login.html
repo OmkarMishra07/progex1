@@ -9,62 +9,52 @@
         <h1 class="text-3xl font-bold">Welcome Back!</h1>
         <p class="text-slate-500 dark:text-slate-400">Log in to view your dashboard.</p>
     </div>
-    
+
     <!-- Login Form -->
-    <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-4 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md">
-        <!-- Email Field -->
+    <form method="POST" action="{{ url_for('auth.login') }}" class="loading-on-submit space-y-4 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md">
+        <!-- Email -->
         <div>
             <label for="email" class="block text-sm font-medium">Email</label>
-            <div class="mt-1">
-                <input id="email" name="email" type="email" autocomplete="email" required 
-                       class="block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
-            </div>
+            <input id="email" name="email" type="email" autocomplete="email" required
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
         </div>
 
-        <!-- Password Field with "Forgot Password?" Link -->
+        <!-- Password -->
         <div>
             <div class="flex items-center justify-between">
                 <label for="password" class="block text-sm font-medium">Password</label>
-                <div class="text-sm">
-                    <a href="{{ url_for('auth.forgot_password') }}" class="font-medium text-indigo-500 hover:underline">
-                        Forgot password?
-                    </a>
-                </div>
+                <a href="{{ url_for('auth.forgot_password') }}" class="text-sm text-indigo-500 hover:underline">
+                    Forgot password?
+                </a>
             </div>
-            <div class="mt-1">
-                <input id="password" name="password" type="password" autocomplete="current-password" required 
-                       class="block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
-            </div>
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
         </div>
 
-        <!-- Submit Button -->
-        <div>
-            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Log In
-            </button>
-        </div>
+        <!-- Submit -->
+        <button type="submit"
+                class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Log In
+        </button>
 
-        <!-- OR Separator -->
+        <!-- OR -->
         <div class="relative flex pt-2 pb-1 items-center">
             <div class="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
             <span class="flex-shrink mx-4 text-slate-500 dark:text-slate-400 text-xs uppercase">OR</span>
             <div class="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
         </div>
 
-        <!-- Google Sign-In Button -->
-        <div>
-            <button type="button" id="google-signin-btn" class="w-full flex justify-center items-center py-2.5 px-4 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none">
-                <img class="h-5 w-5 mr-3" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo">
-                Continue with Google
-            </button>
-        </div>
+        <!-- Google Sign-In -->
+        <button type="button" id="google-signin-btn"
+                class="w-full flex justify-center items-center py-2.5 px-4 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="h-5 w-5 mr-3">
+            Continue with Google
+        </button>
 
-        <!-- Link to Registration Page -->
+        <!-- Register -->
         <p class="text-center text-sm pt-4">
             Don't have an account?
-            <a href="{{ url_for('auth.register') }}" class="font-medium text-indigo-500 hover:underline">
-                Register here
-            </a>.
+            <a href="{{ url_for('auth.register') }}" class="font-medium text-indigo-500 hover:underline">Register here</a>.
         </p>
     </form>
 </div>

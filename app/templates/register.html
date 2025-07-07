@@ -1,22 +1,47 @@
 {% extends "base.html" %}
+
 {% block title %}Register | Progex 👑{% endblock %}
+
 {% block content %}
 <div class="max-w-md mx-auto mt-10">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold">Create Your Progex Account</h1>
-        <p class="text-slate-500 dark:text-slate-400">Start tracking your LeetCode journey.</p>
+        <p class="text-slate-500 dark:text-slate-400">Start tracking your LeetCode journey and compete with friends.</p>
     </div>
-    <form method="POST" class="space-y-6 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md">
+
+    <form method="POST" class="loading-on-submit space-y-6 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md">
+        <!-- LeetCode Username -->
         <div>
             <label for="leetcode_username" class="block text-sm font-medium">LeetCode Username</label>
-            <input type="text" name="leetcode_username" required class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
+            <input type="text" id="leetcode_username" name="leetcode_username" required
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
         </div>
+
+        <!-- Email Address -->
         <div>
             <label for="email" class="block text-sm font-medium">Email Address</label>
-            <input type="email" name="email" required class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
+            <input type="email" id="email" name="email" required
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
         </div>
-        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md hover:bg-indigo-700">Register</button>
-        <p class="text-center text-sm">Already have an account? <a href="{{ url_for('auth.login') }}" class="font-medium text-indigo-500 hover:underline">Log in here</a>.</p>
+
+        <!-- Password -->
+        <div>
+            <label for="password" class="block text-sm font-medium">Password</label>
+            <input type="password" id="password" name="password" required
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <!-- Submit -->
+        <button type="submit"
+                class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md hover:bg-indigo-700 transition">
+            Register
+        </button>
+
+        <!-- Login Link -->
+        <p class="text-center text-sm pt-4">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}" class="font-medium text-indigo-500 hover:underline">Log in here</a>.
+        </p>
     </form>
 </div>
 {% endblock %}
