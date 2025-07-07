@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Progex 👑 | Your Ultimate Coding Tracker{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="text-center py-20 sm:py-32 bg-gradient-to-br from-indigo-600/10 to-purple-500/10 dark:from-indigo-900/20 dark:to-purple-800/20 rounded-lg">
+    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white drop-shadow-md">
+        Track. Compete. <span class="text-indigo-500">Level Up</span> 💻
+    </h1>
+    <p class="mt-6 max-w-3xl mx-auto text-lg text-slate-700 dark:text-slate-300">
+        Welcome to <strong>Progex</strong> — your one-stop dashboard for visualizing coding progress, competing with friends, and staying motivated through smart analytics.
+    </p>
+
+    <!-- Call to Action -->
+    <div class="mt-10 flex justify-center items-center gap-x-6">
+        <a href="{{ url_for('auth.register') }}" class="rounded-md bg-indigo-600 px-5 py-3 text-md font-semibold text-white shadow-md hover:bg-indigo-500 transition-all">
+            🚀 Get Started
+        </a>
+        <a href="{{ url_for('auth.login') }}" class="text-md font-semibold leading-6 hover:text-indigo-500">
+            Already a member? <span class="underline">Log in</span>
+        </a>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="mt-24">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-10">
+            🔍 Why Progex Stands Out
+        </h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 text-left">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">📊 Real-Time LeetCode Stats</h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-300">View your daily streak, problem counts by difficulty, and weekly activity heatmaps updated live.</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🤝 Friends & Leaderboard</h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-300">Compete with friends, view leaderboards, and track coding progress like a gaming app — but for LeetCode.</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🔥 Recent Submissions</h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-300">Track the last 10 questions you or your friends solved and explore trending problems in your circle.</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🌙 Dark Mode</h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-300">Enjoy a soothing dark mode for late-night sessions — switch seamlessly based on your mood.</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🔔 Notifications (Coming Soon)</h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-300">Stay on track with reminders when you miss your daily goal. Personalized nudges are on the way.</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🔐 Google Login</h3>
+                <p class="mt-2 text-slate-600 dark:text-slate-300">Sign up quickly using your Google account for instant access to your coding universe.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call-to-Action Section -->
+<section class="mt-24 py-16 bg-indigo-50 dark:bg-slate-900/20">
+    <div class="max-w-4xl mx-auto text-center px-4">
+        <h2 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">Ready to Elevate Your Coding Game?</h2>
+        <p class="mt-4 text-lg text-slate-700 dark:text-slate-300">Join thousands of other learners using Progex to stay on track, compete with peers, and make coding a consistent habit.</p>
+        <div class="mt-8">
+            <a href="{{ url_for('auth.register') }}" class="inline-block rounded-full bg-indigo-600 px-6 py-3 text-white text-md font-semibold shadow hover:bg-indigo-500 transition">
+                Create My Dashboard Now
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
