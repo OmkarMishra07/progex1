@@ -2,7 +2,7 @@
 # Challenge Routes
 # ------------------------------------------------------------------------------
 # This file handles all logic for the challenges feature, including:
-# - Displaying invitations, ongoing, and completed challenges.
+# - Displaying invitations, pending, ongoing, and completed challenges.
 # - Automatically calculating progress for individuals and the entire group.
 # - Creating new challenges and responding to invitations.
 # - Editing and deleting challenges created by the user.
@@ -16,10 +16,16 @@ bp = Blueprint('challenges', __name__)
 
 # This helper function calculates the number of solved problems for a given user
 def calculate_progress(user_submissions, challenge_problems):
+    # Ensure lists are not None before creating the set
+    if not user_submissions: user_submissions = []
+    if not challenge_problems: return 0
+    
+    # Create a set of slugs for all accepted submissions for fast lookups
     solved_slugs = {sub['titleSlug'] for sub in user_submissions if sub['statusDisplay'] == 'Accepted'}
     solved_count = 0
     for problem in challenge_problems:
-        if problem['titleSlug'] in solved_slugs:
+        # Check if the slug from the challenge exists in the user's solved set
+        if problem.get('titleSlug') in solved_slugs:
             solved_count += 1
     return solved_count
 
@@ -44,66 +50,78 @@ def challenges_page():
     }
     
     # 3. Initialize lists to categorize challenges
-    invitations = []
-    ongoing = []
-    completed_expired = []
+    invitations, pending, ongoing, completed_expired = [], [], [], []
     
     # 4. Process each challenge to determine its status and progress
     for challenge in all_challenges:
-        user_status = challenge['participants'][main_username]['status']
+        user_status = challenge.get('participants', {}).get(main_username, {}).get('status')
+        if not user_status: continue # Failsafe for corrupted data
+
         challenge['user_status'] = user_status
         
         # Calculate time remaining
         expires_at = challenge.get('expiresAt')
         is_expired = False
-        if expires_at and expires_at > datetime.datetime.now(expires_at.tzinfo):
+        if expires_at and expires_at < datetime.datetime.now(expires_at.tzinfo):
+            is_expired = True
+            challenge['time_left'] = "Expired"
+        elif expires_at:
             time_left = expires_at - datetime.datetime.now(expires_at.tzinfo)
             days, rem = divmod(time_left.total_seconds(), 86400)
             hours, _ = divmod(rem, 3600)
             challenge['time_left'] = f"{int(days)}d {int(hours)}h left"
-        else:
-            is_expired = True
-            challenge['time_left'] = "Expired"
-
-        # Calculate this specific user's progress
-        if 'problems' in challenge and challenge['problems']:
-            total_count = len(challenge['problems'])
-            user_submissions = submissions_cache.get(main_username, [])
-            solved_count = calculate_progress(user_submissions, challenge['problems'])
-            challenge['progress'] = solved_count
-            challenge['total_problems'] = total_count
-            challenge['progress_percent'] = (solved_count / total_count * 100)
-            challenge['is_completed_by_user'] = (solved_count == total_count)
-
-            # Check for FULL GROUP COMPLETION
-            all_participants_completed = True
-            accepted_participants = [name for name, data in challenge['participants'].items() if data.get('status') == 'accepted']
-            
-            if not accepted_participants:
-                all_participants_completed = False
-            else:
-                for participant_name in accepted_participants:
-                    participant_submissions = submissions_cache.get(participant_name, [])
-                    if calculate_progress(participant_submissions, challenge['problems']) < total_count:
-                        all_participants_completed = False
-                        break 
-            
-            challenge['is_fully_completed'] = all_participants_completed
-        else: # Handle challenges without problems defined
-            challenge['progress'], challenge['total_problems'], challenge['progress_percent'] = 0, 0, 0
-            challenge['is_completed_by_user'], challenge['is_fully_completed'] = False, False
-
         
-        # 5. Sort the challenge into the correct category for display
+        challenge_problems = challenge.get('problems', [])
+        total_count = len(challenge_problems)
+        user_submissions = submissions_cache.get(main_username, [])
+        solved_count = calculate_progress(user_submissions, challenge_problems)
+        
+        challenge.update({
+            'progress': solved_count,
+            'total_problems': total_count,
+            'progress_percent': (solved_count / total_count * 100) if total_count > 0 else 0,
+            'is_completed_by_user': (solved_count >= total_count) if total_count > 0 else False
+        })
+        
+        # Categorize all participants for detailed view
+        participants_completed, participants_inprogress, participants_invited = [], [], []
+        accepted_participants = [name for name, data in challenge.get('participants', {}).items() if data.get('status') == 'accepted']
+        
+        for name, data in challenge.get('participants', {}).items():
+            status = data.get('status')
+            p_info = {'username': name}
+            if status == 'accepted':
+                p_progress = calculate_progress(submissions_cache.get(name, []), challenge_problems)
+                if p_progress >= total_count:
+                    participants_completed.append(p_info)
+                else:
+                    participants_inprogress.append(p_info)
+            elif status == 'invited':
+                participants_invited.append(p_info)
+        
+        challenge.update({
+            'participants_completed': participants_completed,
+            'participants_inprogress': participants_inprogress,
+            'participants_invited': participants_invited
+        })
+        
+        challenge_has_enough_players = len(accepted_participants) >= 2
+        is_fully_completed = not participants_inprogress and not participants_invited and accepted_participants
+        challenge['is_fully_completed'] = is_fully_completed
+
+        # 5. Sort the challenge into the correct category based on its state
         if user_status == 'invited' and not is_expired:
             invitations.append(challenge)
-        elif user_status == 'accepted' and not is_expired and not challenge.get('is_fully_completed'):
+        elif user_status == 'accepted' and not challenge_has_enough_players and not is_expired:
+            pending.append(challenge)
+        elif user_status == 'accepted' and challenge_has_enough_players and not is_expired and not is_fully_completed:
             ongoing.append(challenge)
-        else: # This category now includes declined, expired, or fully completed challenges
+        else: # Covers declined, expired, and fully completed challenges
             completed_expired.append(challenge)
             
     return render_template('challenges.html', 
-                           invitations=invitations, 
+                           invitations=invitations,
+                           pending=pending,
                            ongoing=ongoing, 
                            completed_expired=completed_expired)
 
@@ -125,8 +143,13 @@ def create_challenge():
             flash("All fields are required.", "error")
             return redirect(url_for('challenges.create_challenge'))
         
-        problem_slugs = [slug.strip() for slug in problems_text.split(',') if slug.strip()]
-        problems_list = [{'title': slug.replace('-', ' ').title(), 'titleSlug': slug} for slug in problem_slugs]
+        problem_slugs_raw = [slug.strip() for slug in problems_text.split(',') if slug.strip()]
+        problems_list = []
+        for slug_or_title in problem_slugs_raw:
+            sanitized_slug = slug_or_title.lower().replace(' ', '-')
+            display_title = sanitized_slug.replace('-', ' ').title()
+            problems_list.append({'title': display_title, 'titleSlug': sanitized_slug})
+
         expires_at = datetime.datetime.strptime(expires_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
         participants = {main_username: {'status': 'accepted'}}
         for friend in invited_friends:
@@ -140,10 +163,10 @@ def create_challenge():
         success = firebase_service.create_challenge(new_challenge_data)
 
         if success:
-            flash("Challenge created and invitations sent successfully!", "success")
+            flash("Challenge created successfully! It will become active once a friend accepts.", "success")
             return redirect(url_for('challenges.challenges_page'))
         else:
-            flash("There was an error creating the challenge. Please try again.", "error")
+            flash("There was an error creating the challenge.", "error")
             return redirect(url_for('challenges.create_challenge'))
 
     friends_list = firebase_service.get_friends(main_username)
