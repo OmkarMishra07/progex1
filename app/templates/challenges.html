@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <!-- Section 1: Invitations -->
+    <!-- Section 1: Invitations from Friends -->
     {% if invitations %}
     <section>
         <h2 class="text-2xl font-bold mb-4">💌 Invitations</h2>
@@ -52,7 +52,9 @@
                     </div>
                     <span class="text-sm font-semibold text-slate-500 whitespace-nowrap">{{ challenge.time_left }}</span>
                 </div>
-                <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">This challenge will become active once at least one more person accepts the invitation.</div>
+                <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                    This challenge will become active once at least one more person accepts the invitation.
+                </div>
                 {% if challenge.creatorUsername == session.leetcode_username %}<div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-end gap-x-4"><a href="{{ url_for('challenges.edit_challenge', challenge_id=challenge.id) }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a><form action="{{ url_for('challenges.delete_challenge', challenge_id=challenge.id) }}" method="POST" onsubmit="return confirm('Are you sure?');"><button type="submit" class="text-sm font-semibold text-red-600 dark:text-red-500 hover:underline">Delete</button></form></div>{% endif %}
             </div>
             {% endfor %}
@@ -81,6 +83,7 @@
                     </div>
                     <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4"><div class="h-4 rounded-full bg-indigo-600" style="width: {{ challenge.progress_percent }}%;"></div></div>
                 </div>
+                
                 <div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
                     <div>
                         <h4 class="font-semibold text-sm text-green-500">Completed ({{ challenge.participants_completed|length }})</h4>
@@ -91,7 +94,6 @@
                     <div>
                         <h4 class="font-semibold text-sm text-yellow-500">In Progress ({{ challenge.participants_inprogress|length }})</h4>
                         <div class="flex flex-wrap gap-2 mt-1">
-                            <!-- THIS IS THE FIX: The else block now has the correct message -->
                             {% for p in challenge.participants_inprogress %}<span class="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-400">{{ p.username }}</span>{% else %}<span class="text-xs text-slate-400">No one is currently in progress.</span>{% endfor %}
                         </div>
                     </div>
@@ -104,6 +106,7 @@
                     </div>
                     {% endif %}
                 </div>
+                
                 {% if challenge.creatorUsername == session.leetcode_username %}<div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-end gap-x-4"><a href="{{ url_for('challenges.edit_challenge', challenge_id=challenge.id) }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a><form action="{{ url_for('challenges.delete_challenge', challenge_id=challenge.id) }}" method="POST" onsubmit="return confirm('Are you sure?');"><button type="submit" class="text-sm font-semibold text-red-600 dark:text-red-500 hover:underline">Delete</button></form></div>{% endif %}
             </div>
             {% endfor %}

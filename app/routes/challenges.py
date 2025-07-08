@@ -85,12 +85,13 @@ def challenges_page():
         
         # Categorize all participants for detailed view
         participants_completed, participants_inprogress, participants_invited = [], [], []
-        accepted_participants = [name for name, data in challenge.get('participants', {}).items() if data.get('status') == 'accepted']
+        accepted_participants_names = []
         
         for name, data in challenge.get('participants', {}).items():
             status = data.get('status')
             p_info = {'username': name}
             if status == 'accepted':
+                accepted_participants_names.append(name)
                 p_progress = calculate_progress(submissions_cache.get(name, []), challenge_problems)
                 if p_progress >= total_count:
                     participants_completed.append(p_info)
@@ -105,16 +106,16 @@ def challenges_page():
             'participants_invited': participants_invited
         })
         
-        challenge_has_enough_players = len(accepted_participants) >= 2
-        is_fully_completed = not participants_inprogress and not participants_invited and accepted_participants
+        challenge_has_enough_players = len(accepted_participants_names) >= 2
+        is_fully_completed = bool(accepted_participants_names) and not participants_inprogress and not participants_invited
         challenge['is_fully_completed'] = is_fully_completed
 
         # 5. Sort the challenge into the correct category based on its state
         if user_status == 'invited' and not is_expired:
             invitations.append(challenge)
-        elif user_status == 'accepted' and not challenge_has_enough_players and not is_expired:
+        elif user_status == 'accepted' and not is_expired and not challenge_has_enough_players:
             pending.append(challenge)
-        elif user_status == 'accepted' and challenge_has_enough_players and not is_expired and not is_fully_completed:
+        elif user_status == 'accepted' and not is_expired and not is_fully_completed:
             ongoing.append(challenge)
         else: # Covers declined, expired, and fully completed challenges
             completed_expired.append(challenge)
