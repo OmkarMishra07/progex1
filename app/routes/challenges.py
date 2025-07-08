@@ -1,12 +1,195 @@
-from flask import Blueprint, render_template, session, redirect, url_for
+# ==============================================================================
+# Challenge Routes
+# ------------------------------------------------------------------------------
+# This file handles all logic for the challenges feature, including:
+# - Displaying invitations, ongoing, and completed challenges.
+# - Automatically calculating progress for individuals and the entire group.
+# - Creating new challenges and responding to invitations.
+# - Editing and deleting challenges created by the user.
+# ==============================================================================
+
+import datetime
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+from app.services import firebase_service, leetcode_api
 
 bp = Blueprint('challenges', __name__)
 
-@bp.route('/challenges')
+# This helper function calculates the number of solved problems for a given user
+def calculate_progress(user_submissions, challenge_problems):
+    solved_slugs = {sub['titleSlug'] for sub in user_submissions if sub['statusDisplay'] == 'Accepted'}
+    solved_count = 0
+    for problem in challenge_problems:
+        if problem['titleSlug'] in solved_slugs:
+            solved_count += 1
+    return solved_count
+
+@bp.route('/challenges/')
 def challenges_page():
-    if not session.get('leetcode_username'):
+    main_username = session.get('leetcode_username')
+    if not main_username:
         return redirect(url_for('main.home'))
     
-    # This is a placeholder for now.
-    # In the future, you would fetch challenges from Firebase here.
-    return render_template('challenges.html')
+    # 1. Fetch all challenges this user is a part of
+    all_challenges = firebase_service.get_user_challenges(main_username)
+    
+    # 2. Efficiently fetch submission data for all unique participants ONCE
+    unique_participants = {main_username}
+    for challenge in all_challenges:
+        for participant in challenge.get('participants', {}).keys():
+            unique_participants.add(participant)
+            
+    submissions_cache = {
+        username: leetcode_api.get_recent_submissions(username, 50) 
+        for username in unique_participants
+    }
+    
+    # 3. Initialize lists to categorize challenges
+    invitations = []
+    ongoing = []
+    completed_expired = []
+    
+    # 4. Process each challenge to determine its status and progress
+    for challenge in all_challenges:
+        user_status = challenge['participants'][main_username]['status']
+        challenge['user_status'] = user_status
+        
+        # Calculate time remaining
+        expires_at = challenge.get('expiresAt')
+        is_expired = False
+        if expires_at and expires_at > datetime.datetime.now(expires_at.tzinfo):
+            time_left = expires_at - datetime.datetime.now(expires_at.tzinfo)
+            days, rem = divmod(time_left.total_seconds(), 86400)
+            hours, _ = divmod(rem, 3600)
+            challenge['time_left'] = f"{int(days)}d {int(hours)}h left"
+        else:
+            is_expired = True
+            challenge['time_left'] = "Expired"
+
+        # Calculate this specific user's progress
+        if 'problems' in challenge and challenge['problems']:
+            total_count = len(challenge['problems'])
+            user_submissions = submissions_cache.get(main_username, [])
+            solved_count = calculate_progress(user_submissions, challenge['problems'])
+            challenge['progress'] = solved_count
+            challenge['total_problems'] = total_count
+            challenge['progress_percent'] = (solved_count / total_count * 100)
+            challenge['is_completed_by_user'] = (solved_count == total_count)
+
+            # Check for FULL GROUP COMPLETION
+            all_participants_completed = True
+            accepted_participants = [name for name, data in challenge['participants'].items() if data.get('status') == 'accepted']
+            
+            if not accepted_participants:
+                all_participants_completed = False
+            else:
+                for participant_name in accepted_participants:
+                    participant_submissions = submissions_cache.get(participant_name, [])
+                    if calculate_progress(participant_submissions, challenge['problems']) < total_count:
+                        all_participants_completed = False
+                        break 
+            
+            challenge['is_fully_completed'] = all_participants_completed
+        else: # Handle challenges without problems defined
+            challenge['progress'], challenge['total_problems'], challenge['progress_percent'] = 0, 0, 0
+            challenge['is_completed_by_user'], challenge['is_fully_completed'] = False, False
+
+        
+        # 5. Sort the challenge into the correct category for display
+        if user_status == 'invited' and not is_expired:
+            invitations.append(challenge)
+        elif user_status == 'accepted' and not is_expired and not challenge.get('is_fully_completed'):
+            ongoing.append(challenge)
+        else: # This category now includes declined, expired, or fully completed challenges
+            completed_expired.append(challenge)
+            
+    return render_template('challenges.html', 
+                           invitations=invitations, 
+                           ongoing=ongoing, 
+                           completed_expired=completed_expired)
+
+
+@bp.route('/challenges/create', methods=['GET', 'POST'])
+def create_challenge():
+    main_username = session.get('leetcode_username')
+    if not main_username:
+        return redirect(url_for('auth.login'))
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        problems_text = request.form.get('problems')
+        expires_str = request.form.get('expiresAt')
+        invited_friends = request.form.getlist('friends')
+
+        if not all([title, description, problems_text, expires_str]):
+            flash("All fields are required.", "error")
+            return redirect(url_for('challenges.create_challenge'))
+        
+        problem_slugs = [slug.strip() for slug in problems_text.split(',') if slug.strip()]
+        problems_list = [{'title': slug.replace('-', ' ').title(), 'titleSlug': slug} for slug in problem_slugs]
+        expires_at = datetime.datetime.strptime(expires_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+        participants = {main_username: {'status': 'accepted'}}
+        for friend in invited_friends:
+            participants[friend] = {'status': 'invited'}
+
+        new_challenge_data = {
+            'creatorUsername': main_username, 'title': title, 'description': description,
+            'problems': problems_list, 'expiresAt': expires_at, 'status': 'active',
+            'participants': participants
+        }
+        success = firebase_service.create_challenge(new_challenge_data)
+
+        if success:
+            flash("Challenge created and invitations sent successfully!", "success")
+            return redirect(url_for('challenges.challenges_page'))
+        else:
+            flash("There was an error creating the challenge. Please try again.", "error")
+            return redirect(url_for('challenges.create_challenge'))
+
+    friends_list = firebase_service.get_friends(main_username)
+    return render_template('create_challenge.html', friends=friends_list)
+
+
+@bp.route('/challenges/respond/<string:challenge_id>/<string:response>', methods=['POST'])
+def respond_to_challenge(challenge_id, response):
+    main_username = session.get('leetcode_username')
+    if not main_username:
+        return redirect(url_for('auth.login'))
+    if response in ['accepted', 'declined']:
+        firebase_service.update_challenge_participant_status(challenge_id, main_username, response)
+        flash(f"You have {response} the challenge!", "success")
+    return redirect(url_for('challenges.challenges_page'))
+
+
+@bp.route('/challenges/delete/<string:challenge_id>', methods=['POST'])
+def delete_challenge(challenge_id):
+    main_username = session.get('leetcode_username')
+    if not main_username:
+        return redirect(url_for('auth.login'))
+    challenge = firebase_service.get_challenge_by_id(challenge_id)
+    if challenge and challenge.get('creatorUsername') == main_username:
+        firebase_service.delete_challenge(challenge_id)
+        flash("Challenge successfully deleted.", "success")
+    else:
+        flash("You do not have permission to delete this challenge.", "error")
+    return redirect(url_for('challenges.challenges_page'))
+
+
+@bp.route('/challenges/edit/<string:challenge_id>', methods=['GET', 'POST'])
+def edit_challenge(challenge_id):
+    main_username = session.get('leetcode_username')
+    if not main_username:
+        return redirect(url_for('auth.login'))
+    challenge = firebase_service.get_challenge_by_id(challenge_id)
+    if not challenge or challenge.get('creatorUsername') != main_username:
+        flash("You do not have permission to edit this challenge.", "error")
+        return redirect(url_for('challenges.challenges_page'))
+    if request.method == 'POST':
+        updated_data = {
+            'title': request.form.get('title'),
+            'description': request.form.get('description')
+        }
+        firebase_service.update_challenge_details(challenge_id, updated_data)
+        flash("Challenge details updated successfully.", "success")
+        return redirect(url_for('challenges.challenges_page'))
+    return render_template('edit_challenge.html', challenge=challenge)

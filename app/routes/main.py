@@ -5,6 +5,7 @@
 # ==============================================================================
 
 from flask import Blueprint, render_template, redirect, url_for, session, flash
+from app.services import firebase_service
 
 bp = Blueprint('main', __name__)
 
@@ -42,3 +43,12 @@ def settings_page():
         return redirect(url_for('auth.login'))
     
     return render_template('settings.html')
+@bp.route('/seed-database')
+def seed_database_route():
+    """
+    A special, hidden route for developers to automatically populate the
+    database with sample data for testing.
+    """
+    result = firebase_service.seed_database()
+    flash(result, 'info')
+    return redirect(url_for('auth.login'))
