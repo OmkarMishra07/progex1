@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <!-- Section 1: Invitations from Friends -->
+    <!-- Section 1: Invitations -->
     {% if invitations %}
     <section>
         <h2 class="text-2xl font-bold mb-4">💌 Invitations</h2>
@@ -52,9 +52,7 @@
                     </div>
                     <span class="text-sm font-semibold text-slate-500 whitespace-nowrap">{{ challenge.time_left }}</span>
                 </div>
-                <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">
-                    This challenge will become active once at least one more person accepts the invitation.
-                </div>
+                <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">This challenge will become active once at least one more person accepts the invitation.</div>
                 {% if challenge.creatorUsername == session.leetcode_username %}<div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-end gap-x-4"><a href="{{ url_for('challenges.edit_challenge', challenge_id=challenge.id) }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a><form action="{{ url_for('challenges.delete_challenge', challenge_id=challenge.id) }}" method="POST" onsubmit="return confirm('Are you sure?');"><button type="submit" class="text-sm font-semibold text-red-600 dark:text-red-500 hover:underline">Delete</button></form></div>{% endif %}
             </div>
             {% endfor %}
@@ -84,6 +82,17 @@
                     <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4"><div class="h-4 rounded-full bg-indigo-600" style="width: {{ challenge.progress_percent }}%;"></div></div>
                 </div>
                 
+                <!-- THIS IS THE FIX: Added the problem list back into the card -->
+                <div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <h4 class="font-semibold text-sm">Problems in this challenge:</h4>
+                    <ul class="list-disc list-inside mt-2 text-sm space-y-1">
+                        {% for problem in challenge.problems %}
+                        <li><a href="https://leetcode.com/problems/{{ problem.titleSlug }}/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ problem.title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Participant Status Section -->
                 <div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
                     <div>
                         <h4 class="font-semibold text-sm text-green-500">Completed ({{ challenge.participants_completed|length }})</h4>
