@@ -3,37 +3,106 @@
 {% block title %}Leaderboard | Progex 👑{% endblock %}
 
 {% block content %}
+<style>
+    /* Ensure Fira Code is used for monospaced elements, Inter for general text */
+    body {
+        font-family: 'Inter', sans-serif; /* Default body font */
+    }
+
+    /* Define CSS variables for colors from tailwind.config for use in custom CSS */
+    :root {
+        --color-primary-blue: #6366F1;
+        --color-accent-green: #00E6B8;
+        --color-accent-lime: #E0FF4F;
+        --color-accent-purple: #8B5CF6;
+        --color-dark-bg: #0F172A;
+        --color-dark-card: #1E293B;
+    }
+
+    /* Neon Button - Replicated for consistency */
+    .neon-btn {
+        background: var(--color-accent-green); /* accent-green */
+        color: var(--color-dark-bg); /* dark-bg for contrast */
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Accent green glow */
+        border: 1px solid transparent; /* Start with transparent border */
+    }
+    .neon-btn:hover {
+        background: transparent; /* Transparent on hover */
+        color: var(--color-accent-green); /* Accent green text on hover */
+        box-shadow: 0 0 12px var(--color-accent-green), 0 0 24px var(--color-accent-green); /* Stronger glow */
+        border-color: var(--color-accent-green); /* Accent green border on hover */
+        transform: scale(1.05); /* Slight scale on hover */
+    }
+
+    /* Input focus glow */
+    .input-glow:focus {
+        outline: none;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Using CSS variable for consistency */
+        background-color: var(--color-dark-bg); /* Ensure background stays dark */
+        border-color: var(--color-accent-green); /* Add border color on focus */
+    }
+
+    /* Styles for difficulty labels - ensuring consistency with the theme */
+    .difficulty-easy {
+        color: var(--color-accent-green);
+        text-shadow: 0 0 5px rgba(0, 230, 184, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-medium {
+        color: var(--color-accent-lime);
+        text-shadow: 0 0 5px rgba(224, 255, 79, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-hard {
+        color: #EF4444; /* Brighter Red */
+        text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); /* Subtle glow */
+    }
+
+    /* Chart.js specific styling for dark theme */
+    .chart-container {
+        background-color: var(--color-dark-card);
+        border: 1px solid var(--color-primary-blue);
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        padding: 1.5rem;
+    }
+</style>
+
 <div class="space-y-12">
     <div>
-        <h1 class="text-3xl font-bold">Friends Leaderboard</h1>
-        <p class="text-slate-500 dark:text-slate-400">See how you stack up against your friends.</p>
+        <h1 class="text-3xl font-heading font-bold text-accent-green">Friends Leaderboard</h1>
+        <p class="text-slate-400 text-lg">See how you stack up against your friends.</p>
     </div>
 
     <!-- Chart Section -->
     <div>
-        <h2 class="text-2xl font-bold mb-4">Problems Solved by Difficulty</h2>
-        <div class="bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-heading font-bold mb-4 text-primary-blue">Problems Solved by Difficulty</h2>
+        <div class="chart-container p-4 sm:p-6">
             <canvas id="leaderboardChart"></canvas>
         </div>
     </div>
 
     <!-- Table Section -->
     <div>
-        <h2 class="text-2xl font-bold mb-4">Rankings</h2>
-        <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-md overflow-hidden">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead class="bg-slate-50 dark:bg-slate-800">
+        <h2 class="text-2xl font-heading font-bold mb-4 text-primary-blue">Rankings</h2>
+        <div class="bg-dark-card rounded-2xl shadow-xl border border-accent-green/30 overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-700">
+                <thead class="bg-dark-bg">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Rank</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">User</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Total Solved</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Current Streak</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rank</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">User</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Total Solved</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Current Streak</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                <tbody class="divide-y divide-slate-700">
                     {% for user in leaderboard_data %}
-                    <tr class="{% if user.username == session.leetcode_username %}bg-indigo-50 dark:bg-indigo-900/20{% endif %}">
-                        <td class="px-6 py-4 whitespace-nowrap text-lg font-bold">
+                    <tr class="{% if user.username == session.leetcode_username %}bg-primary-blue/20 hover:bg-primary-blue/30 transition-colors duration-200{% else %}hover:bg-slate-700/50 transition-colors duration-200{% endif %}">
+                        <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-accent-lime">
                             {% if loop.index == 1 %}🥇
                             {% elif loop.index == 2 %}🥈
                             {% elif loop.index == 3 %}🥉
@@ -41,14 +110,14 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <img class="h-10 w-10 rounded-full" src="{{ user.avatar }}" alt="">
+                                <img class="h-10 w-10 rounded-full border border-accent-green/50" src="{{ user.avatar }}" alt="">
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium">{{ user.username }}</div>
+                                    <div class="text-sm font-medium text-slate-200">{{ user.username }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">{{ user.totalSolved }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">🔥 {{ user.streak }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-200">{{ user.totalSolved }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-accent-green">🔥 {{ user.streak }}</td>
                     </tr>
                     {% else %}
                     <tr>
@@ -80,6 +149,11 @@
         // Get the canvas element
         const ctx = document.getElementById('leaderboardChart').getContext('2d');
         
+        // Get CSS variables for consistent chart colors
+        const accentGreen = getComputedStyle(document.documentElement).getPropertyValue('--color-accent-green').trim();
+        const accentLime = getComputedStyle(document.documentElement).getPropertyValue('--color-accent-lime').trim();
+        const redHard = '#EF4444'; // Directly use the red for hard from CSS
+
         // Create the chart
         new Chart(ctx, {
             type: 'bar',
@@ -89,22 +163,22 @@
                     {
                         label: 'Easy',
                         data: easyData,
-                        backgroundColor: 'rgba(74, 222, 128, 0.6)',
-                        borderColor: 'rgba(34, 197, 94, 1)',
+                        backgroundColor: accentGreen + 'B3', /* 70% opacity */
+                        borderColor: accentGreen,
                         borderWidth: 1
                     },
                     {
                         label: 'Medium',
                         data: mediumData,
-                        backgroundColor: 'rgba(250, 204, 21, 0.6)',
-                        borderColor: 'rgba(234, 179, 8, 1)',
+                        backgroundColor: accentLime + 'B3', /* 70% opacity */
+                        borderColor: accentLime,
                         borderWidth: 1
                     },
                     {
                         label: 'Hard',
                         data: hardData,
-                        backgroundColor: 'rgba(248, 113, 113, 0.6)',
-                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: redHard + 'B3', /* 70% opacity */
+                        borderColor: redHard,
                         borderWidth: 1
                     }
                 ]
@@ -133,11 +207,17 @@
                         },
                         ticks: {
                             color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#94A3B8' : '#64748B'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)' // Lighter grid lines for dark theme
                         }
                     },
                     x: {
                         ticks: {
-                           color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#94A3B8' : '#64748B'
+                            color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#94A3B8' : '#64748B'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)' // Lighter grid lines for dark theme
                         }
                     }
                 }

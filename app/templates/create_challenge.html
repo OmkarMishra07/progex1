@@ -3,54 +3,114 @@
 {% block title %}Create a New Challenge | Progex 👑{% endblock %}
 
 {% block content %}
+<style>
+    /* Ensure Fira Code is used for monospaced elements, Inter for general text */
+    body {
+        font-family: 'Inter', sans-serif; /* Default body font */
+    }
+
+    /* Define CSS variables for colors from tailwind.config for use in custom CSS */
+    :root {
+        --color-primary-blue: #6366F1;
+        --color-accent-green: #00E6B8;
+        --color-accent-lime: #E0FF4F;
+        --color-accent-purple: #8B5CF6;
+        --color-dark-bg: #0F172A;
+        --color-dark-card: #1E293B;
+    }
+
+    /* Neon Button - Replicated for consistency */
+    .neon-btn {
+        background: var(--color-accent-green); /* accent-green */
+        color: var(--color-dark-bg); /* dark-bg for contrast */
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Accent green glow */
+        border: 1px solid transparent; /* Start with transparent border */
+    }
+    .neon-btn:hover {
+        background: transparent; /* Transparent on hover */
+        color: var(--color-accent-green); /* Accent green text on hover */
+        box-shadow: 0 0 12px var(--color-accent-green), 0 0 24px var(--color-accent-green); /* Stronger glow */
+        border-color: var(--color-accent-green); /* Accent green border on hover */
+        transform: scale(1.05); /* Slight scale on hover */
+    }
+
+    /* Input focus glow */
+    .input-glow:focus {
+        outline: none;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Using CSS variable for consistency */
+        background-color: var(--color-dark-bg); /* Ensure background stays dark */
+        border-color: var(--color-accent-green); /* Add border color on focus */
+    }
+
+    /* Styles for difficulty labels - ensuring consistency with the theme */
+    .difficulty-easy {
+        color: var(--color-accent-green);
+        text-shadow: 0 0 5px rgba(0, 230, 184, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-medium {
+        color: var(--color-accent-lime);
+        text-shadow: 0 0 5px rgba(224, 255, 79, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-hard {
+        color: #EF4444; /* Brighter Red */
+        text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); /* Subtle glow */
+    }
+</style>
+
 <div class="max-w-2xl mx-auto">
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold">Create a New Challenge</h1>
-        <p class="text-slate-500 dark:text-slate-400 mt-1">Define the problems, set the rules, and invite your friends to compete.</p>
+        <h1 class="text-3xl font-heading font-bold text-accent-green">Create a New Challenge</h1>
+        <p class="text-slate-400 mt-1 text-lg">Define the problems, set the rules, and invite your friends to compete.</p>
     </div>
 
     <!-- Creation Form -->
-    <form action="{{ url_for('challenges.create_challenge') }}" method="POST" class="space-y-6 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md loading-on-submit">
+    <form action="{{ url_for('challenges.create_challenge') }}" method="POST" class="space-y-6 bg-dark-card p-8 rounded-2xl shadow-xl border border-primary-blue/30 loading-on-submit">
         
         <!-- Challenge Title -->
         <div>
-            <label for="title" class="block text-sm font-medium">Challenge Title</label>
+            <label for="title" class="block text-slate-300 text-sm font-bold mb-2">Challenge Title</label>
             <input type="text" name="title" id="title" required placeholder="e.g., Weekend DP Grind"
-                   class="mt-1 block w-full px-4 py-2 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-dark-bg text-slate-200 border border-slate-700 input-glow">
         </div>
 
         <!-- Challenge Description -->
         <div>
-            <label for="description" class="block text-sm font-medium">Description</label>
+            <label for="description" class="block text-slate-300 text-sm font-bold mb-2">Description</label>
             <textarea name="description" id="description" rows="3" required placeholder="A brief summary of the challenge goals."
-                      class="mt-1 block w-full px-4 py-2 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none"></textarea>
+                      class="mt-1 block w-full px-4 py-3 rounded-md bg-dark-bg text-slate-200 border border-slate-700 input-glow"></textarea>
         </div>
 
         <!-- Problems -->
         <div>
-            <label for="problems" class="block text-sm font-medium">Exact Name Of The Question</label>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Ex.- Longest Common Prefix</p>
+            <label for="problems" class="block text-slate-300 text-sm font-bold mb-2">Exact Name Of The Question</label>
+            <p class="text-xs text-slate-400 mb-2">Ex.- Longest Common Prefix (comma-separated for multiple problems)</p>
             <input type="text" name="problems" id="problems" required placeholder="two-sum,coin-change,reverse-linked-list"
-                   class="mt-1 block w-full px-4 py-2 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-dark-bg text-slate-200 border border-slate-700 input-glow">
         </div>
         
         <!-- Expiration Date -->
         <div>
-            <label for="expiresAt" class="block text-sm font-medium">Challenge End Date</label>
+            <label for="expiresAt" class="block text-slate-300 text-sm font-bold mb-2">Challenge End Date</label>
             <input type="date" name="expiresAt" id="expiresAt" required
-                   class="mt-1 block w-full px-4 py-2 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
+                   class="mt-1 block w-full px-4 py-3 rounded-md bg-dark-bg text-slate-200 border border-slate-700 input-glow">
         </div>
 
         <!-- Invite Friends -->
         {% if friends %}
         <div>
-            <label class="block text-sm font-medium">Invite Friends</label>
-            <div class="mt-2 space-y-2 border border-slate-300 dark:border-slate-700 rounded-md p-4 max-h-48 overflow-y-auto">
+            <label class="block text-slate-300 text-sm font-bold mb-2">Invite Friends</label>
+            <div class="mt-2 space-y-2 border border-slate-700 rounded-md p-4 max-h-48 overflow-y-auto bg-dark-bg">
                 {% for friend in friends %}
                 <div class="flex items-center">
-                    <input id="friend-{{ friend }}" name="friends" type="checkbox" value="{{ friend }}" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <label for="friend-{{ friend }}" class="ml-3 block text-sm">{{ friend }}</label>
+                    <input id="friend-{{ friend }}" name="friends" type="checkbox" value="{{ friend }}" class="h-4 w-4 rounded border-slate-600 text-accent-green focus:ring-accent-green bg-dark-bg">
+                    <label for="friend-{{ friend }}" class="ml-3 block text-slate-300">{{ friend }}</label>
                 </div>
                 {% endfor %}
             </div>
@@ -59,7 +119,7 @@
 
         <!-- Submit Button -->
         <div class="pt-4">
-            <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+            <button type="submit" class="w-full neon-btn py-3 px-4 rounded-md flex justify-center items-center gap-2">
                 Create & Send Invites
             </button>
         </div>

@@ -1,73 +1,145 @@
 {% extends "base.html" %}
 
-{% block title %}Progex 👑 | Your Ultimate Coding Tracker{% endblock %}
+{% block title %}Progex 👑 | Code. Compete. Conquer.{% endblock %}
 
 {% block content %}
+
+<style>
+    /* Ensure Fira Code is used for monospaced elements, Inter for general text */
+    body {
+        font-family: 'Inter', sans-serif; /* Default body font */
+    }
+
+    /* Terminal Typing Animation - Adjusted for theme colors */
+    .typing-terminal {
+        display: inline-block;
+        white-space: nowrap;
+        border-right: 2px solid #00E6B8; /* Accent Green cursor */
+        overflow: hidden;
+        animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
+        color: #E0FF4F; /* Electric Lime for main typing text */
+        font-weight: bold;
+        font-size: 1.5rem;
+        font-family: 'Space Mono', monospace; /* Use Space Mono for terminal text */
+    }
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    @keyframes blink {
+        50% { border-color: transparent }
+    }
+
+    /* Terminal Cards - Adjusted for theme colors and enhanced hover */
+    .card-terminal {
+        background-color: #1E293B; /* dark-card */
+        color: #cbd5e1; /* slate-300 for better contrast on card */
+        border: 1px solid rgba(0, 230, 184, 0.4); /* accent-green with opacity */
+        padding: 1.5rem;
+        border-radius: 12px;
+        font-family: 'Space Mono', monospace; /* Use Space Mono for card content */
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Subtle shadow */
+    }
+    .card-terminal:hover {
+        border-color: #00E6B8; /* accent-green */
+        background-color: #334155; /* slate-700, slightly lighter for hover */
+        transform: translateY(-5px) scale(1.02); /* Lift and slight scale */
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4), 0 0 15px rgba(0, 230, 184, 0.6); /* Enhanced shadow and green glow */
+    }
+
+    /* Neon Button - Adjusted for theme colors and enhanced hover */
+    .neon-btn {
+        background: #00E6B8; /* accent-green */
+        color: #0F172A; /* dark-bg for contrast */
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px #00E6B8; /* Accent green glow */
+        border: 1px solid transparent; /* Start with transparent border */
+    }
+    .neon-btn:hover {
+        background: transparent; /* Transparent on hover */
+        color: #00E6B8; /* Accent green text on hover */
+        box-shadow: 0 0 12px #00E6B8, 0 0 24px #00E6B8; /* Stronger glow */
+        border-color: #00E6B8; /* Accent green border on hover */
+        transform: scale(1.05); /* Slight scale on hover */
+    }
+
+    /* Subtle Glow on Links - Adjusted for theme colors */
+    a:hover {
+        text-shadow: 0 0 5px #00E6B8; /* Accent green glow */
+    }
+</style>
+
 <!-- Hero Section -->
-<div class="text-center py-20 sm:py-32 bg-gradient-to-br from-indigo-600/10 to-purple-500/10 dark:from-indigo-900/20 dark:to-purple-800/20 rounded-lg">
-    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white drop-shadow-md">
-        Track. Compete. <span class="text-indigo-500">Level Up</span> 💻
-    </h1>
-    <p class="mt-6 max-w-3xl mx-auto text-lg text-slate-700 dark:text-slate-300">
-        Welcome to <strong>Progex</strong> — your one-stop dashboard for visualizing coding progress, competing with friends, and staying motivated through smart analytics.
-    </p>
-
-    <!-- Call to Action -->
-    <div class="mt-10 flex justify-center items-center gap-x-6">
-        <a href="{{ url_for('auth.register') }}" class="rounded-md bg-indigo-600 px-5 py-3 text-md font-semibold text-white shadow-md hover:bg-indigo-500 transition-all">
-            🚀 Get Started
-        </a>
-        <a href="{{ url_for('auth.login') }}" class="text-md font-semibold leading-6 hover:text-indigo-500">
-            Already a member? <span class="underline">Log in</span>
-        </a>
-    </div>
-</div>
-
-<!-- Features Section -->
-<section class="mt-24">
-    <div class="max-w-5xl mx-auto px-4 text-center">
-        <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-10">
-            🔍 Why Progex Stands Out
-        </h2>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 text-left">
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
-                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">📊 Real-Time LeetCode Stats</h3>
-                <p class="mt-2 text-slate-600 dark:text-slate-300">View your daily streak, problem counts by difficulty, and weekly activity heatmaps updated live.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
-                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🤝 Friends & Leaderboard</h3>
-                <p class="mt-2 text-slate-600 dark:text-slate-300">Compete with friends, view leaderboards, and track coding progress like a gaming app — but for LeetCode.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
-                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🔥 Recent Submissions</h3>
-                <p class="mt-2 text-slate-600 dark:text-slate-300">Track the last 10 questions you or your friends solved and explore trending problems in your circle.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
-                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🌙 Dark Mode</h3>
-                <p class="mt-2 text-slate-600 dark:text-slate-300">Enjoy a soothing dark mode for late-night sessions — switch seamlessly based on your mood.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
-                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🔔 Notifications (Coming Soon)</h3>
-                <p class="mt-2 text-slate-600 dark:text-slate-300">Stay on track with reminders when you miss your daily goal. Personalized nudges are on the way.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow hover:shadow-lg transition">
-                <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">🔐 Google Login</h3>
-                <p class="mt-2 text-slate-600 dark:text-slate-300">Sign up quickly using your Google account for instant access to your coding universe.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Call-to-Action Section -->
-<section class="mt-24 py-16 bg-indigo-50 dark:bg-slate-900/20">
-    <div class="max-w-4xl mx-auto text-center px-4">
-        <h2 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">Ready to Elevate Your Coding Game?</h2>
-        <p class="mt-4 text-lg text-slate-700 dark:text-slate-300">Join thousands of other learners using Progex to stay on track, compete with peers, and make coding a consistent habit.</p>
-        <div class="mt-8">
-            <a href="{{ url_for('auth.register') }}" class="inline-block rounded-full bg-indigo-600 px-6 py-3 text-white text-md font-semibold shadow hover:bg-indigo-500 transition">
-                Create My Dashboard Now
+<section class="text-center py-20 bg-dark-card rounded-2xl px-4 md:px-8 shadow-2xl relative overflow-hidden">
+    <!-- Overlay for subtle gradient effect - now uses green and blue -->
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-blue/10 to-accent-green/10 rounded-2xl z-0"></div>
+    <div class="relative z-10">
+        <h1 class="typing-terminal max-w-full mx-auto text-3xl md:text-4xl lg:text-5xl">> Welcome to Progex — your coding mission starts now_</h1>
+        <p class="mt-6 text-slate-300 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+            A vibrant terminal for your progress. A dynamic leaderboard for your rivals. A sleek dashboard for your grind.
+            Unleash your coding potential.
+        </p>
+        <div class="mt-10 flex justify-center flex-wrap gap-6">
+            <a href="{{ url_for('auth.register') }}" class="neon-btn">🚀 Initialize Account</a>
+            <a href="{{ url_for('auth.login') }}" class="text-accent-green underline hover:text-emerald-400 transition-colors duration-300 flex items-center">
+                Already configured? <span class="ml-1 font-semibold">Login</span>
+                <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </a>
         </div>
     </div>
 </section>
+
+<!-- Features Section -->
+<section class="mt-20 px-4 text-center">
+    <h2 class="text-3xl md:text-4xl font-heading text-accent-green mb-12 relative inline-block">
+        <span class="relative z-10">🧠 Dev Mode Features</span>
+        <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-accent-green opacity-50 rounded-full blur-sm"></span>
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div class="card-terminal">
+            <h3 class="text-primary-blue font-bold mb-2 text-xl">📊 Real-Time LeetCode Stats</h3>
+            <p>Live syncing of streaks, difficulty logs, and problem tags, presented in an intuitive interface.</p>
+        </div>
+        <div class="card-terminal">
+            <h3 class="text-primary-blue font-bold mb-2 text-xl">🤝 Peer Leaderboard</h3>
+            <p>View how your friends rank by frequency, speed, and accuracy on a dynamic, competitive board.</p>
+        </div>
+        <div class="card-terminal">
+            <h3 class="text-primary-blue font-bold mb-2 text-xl">🧠 Submission Intelligence</h3>
+            <p>Track your last 10 problems solved, tags covered, and performance metrics for continuous improvement.</p>
+        </div>
+        <div class="card-terminal">
+            <h3 class="text-primary-blue font-bold mb-2 text-xl">🌘 Full Dark Terminal UI</h3>
+            <p>Immerse yourself in a built-in dark theme with a true hacker-console aesthetic, optimized for focus.</p>
+        </div>
+        <div class="card-terminal">
+            <h3 class="text-primary-blue font-bold mb-2 text-xl">🔔 Reminders & Triggers</h3>
+            <p>Set up auto-pings when your streak breaks or when new daily challenges drop, keeping you on track.</p>
+        </div>
+        <div class="card-terminal">
+            <h3 class="text-primary-blue font-bold mb-2 text-xl">🔐 Secure Google Auth</h3>
+            <p>Log in swiftly and securely with your existing Google dev profile in seconds, no extra hassle.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="mt-24 py-16 bg-dark-card rounded-2xl text-center px-4 md:px-8 shadow-2xl relative overflow-hidden">
+    <!-- Another subtle gradient overlay - now uses green and blue -->
+    <div class="absolute inset-0 bg-gradient-to-tl from-accent-green/10 to-primary-blue/10 rounded-2xl z-0"></div>
+    <div class="relative z-10">
+        <h2 class="text-3xl md:text-4xl font-heading text-accent-green mb-4">🤖 Ready to code like a legend?</h2>
+        <p class="mt-4 text-slate-300 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
+            Your personalized dashboard is just a command away. Build streaks. Beat friends. Be unstoppable.
+        </p>
+        <div class="mt-10">
+            <a href="{{ url_for('auth.register') }}" class="neon-btn">💾 Create My Dev Space</a>
+        </div>
+    </div>
+</section>
+
 {% endblock %}

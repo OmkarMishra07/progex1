@@ -3,45 +3,144 @@
 {% block title %}Register | Progex 👑{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto mt-10">
-    <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold">Create Your Progex Account</h1>
-        <p class="text-slate-500 dark:text-slate-400">Start tracking your LeetCode journey and compete with friends.</p>
+<style>
+    /* Custom styles for the register page to ensure consistency with the theme */
+    /* Input focus glow - Replicated from login.html for consistency */
+    .input-glow:focus {
+        outline: none;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Using CSS variable for consistency */
+        background-color: var(--color-dark-bg); /* Ensure background stays dark */
+        border-color: var(--color-accent-green); /* Add border color on focus */
+    }
+
+    /* Neon Button - Replicated from login.html for consistency */
+    .neon-btn {
+        background: var(--color-accent-green); /* accent-green */
+        color: var(--color-dark-bg); /* dark-bg for contrast */
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Accent green glow */
+        border: 1px solid transparent; /* Start with transparent border */
+    }
+    .neon-btn:hover {
+        background: transparent; /* Transparent on hover */
+        color: var(--color-accent-green); /* Accent green text on hover */
+        box-shadow: 0 0 12px var(--color-accent-green), 0 0 24px var(--color-accent-green); /* Stronger glow */
+        border-color: var(--color-accent-green); /* Accent green border on hover */
+        transform: scale(1.05); /* Slight scale on hover */
+    }
+
+    /* Google Button - Replicated from login.html for consistency */
+    .google-btn-themed {
+        background-color: transparent;
+        color: #cbd5e1; /* slate-300 */
+        border: 1px solid rgba(0, 230, 184, 0.6); /* accent-green with opacity */
+        transition: all 0.3s ease;
+    }
+    .google-btn-themed:hover {
+        background-color: #334155; /* slate-700, slightly lighter for hover */
+        box-shadow: 0 0 10px rgba(0, 230, 184, 0.8); /* Accent green glow */
+        transform: scale(1.02);
+    }
+
+    /* Terminal Typewriter Animation - Adjusted for theme colors */
+    .typewriter-header { /* Renamed from .typewriter to avoid conflict with base.html if any */
+        overflow: hidden;
+        border-right: 2px solid var(--color-accent-green); /* Accent Green cursor */
+        white-space: nowrap;
+        animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        font-size: 1.5rem;
+        font-family: 'Space Mono', monospace; /* Consistent monospace font */
+        color: var(--color-accent-green); /* Main typing text color */
+    }
+
+    .sub-typewriter-text { /* Renamed from .sub-typewriter */
+        overflow: hidden;
+        border-right: 2px solid var(--color-accent-green); /* Accent Green cursor */
+        white-space: nowrap;
+        animation: typing-sub 3s steps(40, end) 3.6s forwards, blink-caret 0.75s step-end infinite;
+        opacity: 0; /* Starts hidden */
+        font-size: 0.875rem;
+        font-family: 'Space Mono', monospace; /* Consistent monospace font */
+        color: var(--color-accent-lime); /* Sub-text color */
+    }
+
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+
+    @keyframes typing-sub {
+        from { width: 0; opacity: 1; }
+        to { width: 100%; opacity: 1; }
+    }
+
+    @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: var(--color-accent-green); }
+    }
+
+    /* Define CSS variables for colors from tailwind.config for use in custom CSS */
+    :root {
+        --color-primary-blue: #6366F1;
+        --color-accent-green: #00E6B8;
+        --color-accent-lime: #E0FF4F;
+        --color-accent-purple: #8B5CF6;
+        --color-dark-bg: #0F172A;
+        --color-dark-card: #1E293B;
+    }
+</style>
+
+<div class="max-w-md mx-auto px-4 py-12">
+    <!-- Terminal Style Header -->
+    <div class="text-left mb-8">
+        <h1 class="typewriter-header font-bold tracking-wider">&gt; Create your account</h1>
+        <p class="sub-typewriter-text mt-2">Join Progex and start your coding journey.</p>
     </div>
 
-    <form method="POST" class="loading-on-submit space-y-6 bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md">
-        <!-- LeetCode Username -->
-        <div>
-            <label for="leetcode_username" class="block text-sm font-medium">LeetCode Username</label>
-            <input type="text" id="leetcode_username" name="leetcode_username" required
-                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
+    <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-6 bg-dark-card p-8 rounded-2xl shadow-2xl border border-accent-green/40 relative overflow-hidden">
+        <!-- Subtle gradient overlay for the card -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-blue/5 to-accent-green/5 rounded-2xl z-0"></div>
+        <div class="relative z-10">
+            <div>
+                <label for="leetcode_username" class="block text-slate-300 text-sm font-bold mb-2">LeetCode Username</label>
+                <input id="leetcode_username" name="leetcode_username" type="text" required
+                    class="w-full p-3 bg-dark-bg text-slate-200 border border-slate-700 rounded-md input-glow transition-all duration-200">
+            </div>
+
+            <div>
+                <label for="email" class="block text-slate-300 text-sm font-bold mb-2">Email</label>
+                <input id="email" name="email" type="email" required autocomplete="email"
+                    class="w-full p-3 bg-dark-bg text-slate-200 border border-slate-700 rounded-md input-glow transition-all duration-200">
+            </div>
+
+            <div>
+                <label for="password" class="block text-slate-300 text-sm font-bold mb-2">Password</label>
+                <input id="password" name="password" type="password" required autocomplete="new-password"
+                    class="w-full p-3 bg-dark-bg text-slate-200 border border-slate-700 rounded-md input-glow transition-all duration-200">
+            </div>
+
+            <button type="submit" class="neon-btn w-full py-3 px-4 rounded-md flex items-center justify-center gap-2">Register</button>
+
+            <div class="relative flex pt-2 pb-1 items-center">
+                <div class="flex-grow border-t border-slate-700"></div>
+                <span class="flex-shrink mx-4 text-slate-500 text-xs uppercase font-sans">OR</span>
+                <div class="flex-grow border-t border-slate-700"></div>
+            </div>
+
+            <button type="button" id="google-signin-btn"
+                class="google-btn-themed w-full flex justify-center items-center py-2.5 px-4 rounded-md shadow-sm text-sm font-medium">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="h-5 w-5 mr-3">
+                Continue with Google
+            </button>
+
+            <p class="text-center text-sm pt-4 text-slate-400 font-sans">
+                Already have an account?
+                <a href="{{ url_for('auth.login') }}" class="text-accent-green hover:text-accent-lime underline transition-colors duration-200">Login here</a>.
+            </p>
         </div>
-
-        <!-- Email Address -->
-        <div>
-            <label for="email" class="block text-sm font-medium">Email Address</label>
-            <input type="email" id="email" name="email" required
-                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
-        </div>
-
-        <!-- Password -->
-        <div>
-            <label for="password" class="block text-sm font-medium">Password</label>
-            <input type="password" id="password" name="password" required
-                   class="mt-1 block w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-indigo-500 focus:outline-none">
-        </div>
-
-        <!-- Submit -->
-        <button type="submit"
-                class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md hover:bg-indigo-700 transition">
-            Register
-        </button>
-
-        <!-- Login Link -->
-        <p class="text-center text-sm pt-4">
-            Already have an account?
-            <a href="{{ url_for('auth.login') }}" class="font-medium text-indigo-500 hover:underline">Log in here</a>.
-        </p>
     </form>
 </div>
 {% endblock %}

@@ -3,39 +3,91 @@
 {% block title %}Daily Challenge | Progex 👑{% endblock %}
 
 {% block content %}
+<style>
+    /* Ensure Fira Code is used for monospaced elements, Inter for general text */
+    body {
+        font-family: 'Inter', sans-serif; /* Default body font */
+    }
+
+    /* Define CSS variables for colors from tailwind.config for use in custom CSS */
+    :root {
+        --color-primary-blue: #6366F1;
+        --color-accent-green: #00E6B8;
+        --color-accent-lime: #E0FF4F;
+        --color-accent-purple: #8B5CF6;
+        --color-dark-bg: #0F172A;
+        --color-dark-card: #1E293B;
+    }
+
+    /* Neon Button - Replicated for consistency */
+    .neon-btn {
+        background: var(--color-accent-green); /* accent-green */
+        color: var(--color-dark-bg); /* dark-bg for contrast */
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Accent green glow */
+        border: 1px solid transparent; /* Start with transparent border */
+    }
+    .neon-btn:hover {
+        background: transparent; /* Transparent on hover */
+        color: var(--color-accent-green); /* Accent green text on hover */
+        box-shadow: 0 0 12px var(--color-accent-green), 0 0 24px var(--color-accent-green); /* Stronger glow */
+        border-color: var(--color-accent-green); /* Accent green border on hover */
+        transform: scale(1.05); /* Slight scale on hover */
+    }
+
+    /* Difficulty colors - ensuring consistency with the theme */
+    .difficulty-easy {
+        color: var(--color-accent-green);
+        text-shadow: 0 0 5px rgba(0, 230, 184, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-medium {
+        color: var(--color-accent-lime);
+        text-shadow: 0 0 5px rgba(224, 255, 79, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-hard {
+        color: #EF4444; /* Brighter Red */
+        text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); /* Subtle glow */
+    }
+</style>
+
 <div class="max-w-2xl mx-auto">
     <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold">Today's Daily Challenge</h1>
-        <p class="text-slate-500 dark:text-slate-400">Build discipline, one problem at a time.</p>
+        <h1 class="text-3xl font-heading font-bold text-accent-green">Today's Daily Challenge</h1>
+        <p class="text-slate-400 text-lg">Build discipline, one problem at a time.</p>
     </div>
 
     {% if daily %}
-    <div class="bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md space-y-4">
+    <div class="bg-dark-card p-8 rounded-2xl shadow-xl border border-primary-blue/30 space-y-4">
         <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold">{{ daily.title }}</h2>
+            <h2 class="text-2xl font-bold text-primary-blue">{{ daily.title }}</h2>
             <span class="px-3 py-1 text-sm font-bold rounded-full difficulty-{{ daily.difficulty.lower() }}">{{ daily.difficulty.upper() }}</span>
         </div>
         
         {% if is_completed %}
-        <div class="flex items-center space-x-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 p-4 rounded-md">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div class="flex items-center space-x-2 bg-accent-green/20 text-accent-green p-4 rounded-md border border-accent-green/50">
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             <p class="font-semibold">You've already completed today's challenge! Great job!</p>
         </div>
         {% else %}
-        <div class="flex items-center space-x-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 p-4 rounded-md">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div class="flex items-center space-x-2 bg-accent-lime/20 text-accent-lime p-4 rounded-md border border-accent-lime/50">
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             <p class="font-semibold">Status: Pending</p>
         </div>
         {% endif %}
 
-        <a href="{{ daily.link }}" target="_blank" class="block w-full text-center bg-indigo-600 text-white font-semibold px-6 py-4 rounded-md hover:bg-indigo-700 text-lg">
+        <a href="{{ daily.link }}" target="_blank" class="block w-full text-center neon-btn text-lg">
             Go to Problem →
         </a>
     </div>
     {% else %}
-    <div class="bg-white dark:bg-slate-800/50 p-8 rounded-lg shadow-md text-center">
-        <h2 class="text-2xl font-bold">Oops!</h2>
-        <p class="text-slate-500 dark:text-slate-400 mt-2">We couldn't load the daily challenge right now. Please try again later.</p>
+    <div class="bg-dark-card p-8 rounded-2xl shadow-xl border border-primary-blue/30 text-center">
+        <h2 class="text-2xl font-bold text-primary-blue">Oops!</h2>
+        <p class="text-slate-400 mt-2">We couldn't load the daily challenge right now. Please try again later.</p>
     </div>
     {% endif %}
 </div>

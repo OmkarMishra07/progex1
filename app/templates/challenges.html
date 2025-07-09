@@ -3,34 +3,82 @@
 {% block title %}Challenges | Progex 👑{% endblock %}
 
 {% block content %}
+
+<!-- Custom CSS for the Coder/Terminal Theme -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+/* Define theme colors as CSS variables for easy reuse */
+:root {
+    --color-primary-blue: #818CF8;   /* Indigo-400 */
+    --color-accent-green: #34D399;   /* Emerald-400 */
+    --color-accent-lime: #A3E635;    /* Lime-400 */
+    --color-accent-red: #F87171;     /* Red-400 */
+    --color-dark-bg: #0F172A;        /* Slate-900 */
+    --color-dark-card: #1E293B;      /* Slate-800 */
+}
+
+/* Base style for cards */
+.challenge-card {
+    background-color: var(--color-dark-card);
+    color: #cbd5e1; /* slate-300 */
+    font-family: 'Inter', sans-serif;
+    border-radius: 12px;
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    box-shadow: 0 0 15px rgba(129, 140, 248, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.challenge-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 20px rgba(129, 140, 248, 0.2);
+}
+
+/* Glowing button style */
+.neon-btn {
+    background: var(--color-accent-green);
+    color: var(--color-dark-bg);
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 8px var(--color-accent-green);
+    border: 1px solid transparent;
+}
+.neon-btn:hover {
+    background: transparent;
+    color: var(--color-accent-green);
+    box-shadow: 0 0 12px var(--color-accent-green), 0 0 24px var(--color-accent-green);
+    border-color: var(--color-accent-green);
+    transform: scale(1.05);
+}
+</style>
+
 <div class="space-y-12">
     <!-- Header -->
-    <div>
+    <section class="bg-dark-card p-8 rounded-2xl shadow-xl border border-primary-blue/30">
         <div class="flex justify-between items-center flex-wrap gap-4">
             <div>
-                <h1 class="text-3xl font-bold">Weekly Coding Challenges</h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1">Test your skills, compete with friends, and stay consistent.</p>
+                <h1 class="text-4xl font-bold tracking-tight text-white">Weekly Coding Challenges</h1>
+                <p class="mt-2 text-slate-300 text-lg">Test your skills, compete with friends, and stay consistent.</p>
             </div>
-            <a href="{{ url_for('challenges.create_challenge') }}" class="rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                Create New Challenge
+            <a href="{{ url_for('challenges.create_challenge') }}" class="neon-btn px-6 py-3 text-md font-semibold rounded-lg">
+                ➕ Create New Challenge
             </a>
         </div>
-    </div>
+    </section>
 
-    <!-- Section 1: Invitations -->
+    <!-- Section 1: Invitations from Friends -->
     {% if invitations %}
     <section>
-        <h2 class="text-2xl font-bold mb-4">💌 Invitations</h2>
+        <h2 class="text-3xl font-bold mb-4 text-accent-lime">💌 Invitations</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {% for invite in invitations %}
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg border border-indigo-500/50">
-                <p class="text-sm text-slate-500 dark:text-slate-400">From: <span class="font-semibold">{{ invite.creatorUsername }}</span></p>
-                <h3 class="text-xl font-bold mt-1">{{ invite.title }}</h3>
-                <p class="text-slate-600 dark:text-slate-300 mt-2 text-sm">{{ invite.description }}</p>
-                <p class="text-xs font-semibold text-yellow-500 mt-4">Expires in: {{ invite.time_left }}</p>
+            <div class="challenge-card p-6 border-l-4 border-accent-lime">
+                <p class="text-sm text-slate-400">From: <span class="font-semibold text-primary-blue">{{ invite.creatorUsername }}</span></p>
+                <h3 class="text-xl font-bold mt-1 text-white">{{ invite.title }}</h3>
+                <p class="mt-2 text-sm text-slate-300">{{ invite.description }}</p>
+                <p class="text-xs font-semibold text-yellow-400 mt-4">⏳ Expires in: {{ invite.time_left }}</p>
                 <div class="flex items-center gap-x-4 mt-4">
-                    <form action="{{ url_for('challenges.respond_to_challenge', challenge_id=invite.id, response='accepted') }}" method="POST"><button type="submit" class="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">Accept</button></form>
-                    <form action="{{ url_for('challenges.respond_to_challenge', challenge_id=invite.id, response='declined') }}" method="POST"><button type="submit" class="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600">Decline</button></form>
+                    <form action="{{ url_for('challenges.respond_to_challenge', challenge_id=invite.id, response='accepted') }}" method="POST"><button type="submit" class="bg-accent-green hover:bg-emerald-500 text-dark-bg px-4 py-2 rounded-md font-semibold transition-colors duration-200">Accept</button></form>
+                    <form action="{{ url_for('challenges.respond_to_challenge', challenge_id=invite.id, response='declined') }}" method="POST"><button type="submit" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-md font-semibold transition-colors duration-200">Decline</button></form>
                 </div>
             </div>
             {% endfor %}
@@ -41,19 +89,13 @@
     <!-- Section 2: Pending Challenges -->
     {% if pending %}
     <section>
-        <h2 class="text-2xl font-bold mb-4">⏳ Waiting for Friends to Accept</h2>
+        <h2 class="text-3xl font-bold mb-4 text-yellow-400">⏳ Waiting for Friends</h2>
         <div class="space-y-6">
             {% for challenge in pending %}
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border-l-4 border-yellow-400">
-                <div class="flex justify-between items-start flex-wrap gap-2">
-                    <div>
-                        <h3 class="text-xl font-bold">{{ challenge.title }}</h3>
-                        <p class="text-slate-600 dark:text-slate-300 mt-1 text-sm">{{ challenge.description }}</p>
-                    </div>
-                    <span class="text-sm font-semibold text-slate-500 whitespace-nowrap">{{ challenge.time_left }}</span>
-                </div>
-                <div class="mt-4 text-sm text-slate-500 dark:text-slate-400">This challenge will become active once at least one more person accepts the invitation.</div>
-                {% if challenge.creatorUsername == session.leetcode_username %}<div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-end gap-x-4"><a href="{{ url_for('challenges.edit_challenge', challenge_id=challenge.id) }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a><form action="{{ url_for('challenges.delete_challenge', challenge_id=challenge.id) }}" method="POST" onsubmit="return confirm('Are you sure?');"><button type="submit" class="text-sm font-semibold text-red-600 dark:text-red-500 hover:underline">Delete</button></form></div>{% endif %}
+            <div class="challenge-card p-6">
+                <div class="flex justify-between items-start flex-wrap gap-2"><h3 class="text-xl font-bold text-white">{{ challenge.title }}</h3><span class="text-sm font-semibold text-slate-400">{{ challenge.time_left }}</span></div>
+                <p class="mt-2 text-sm text-slate-400">This challenge will become active once at least one more person accepts.</p>
+                {% if challenge.creatorUsername == session.leetcode_username %}<div class="mt-4 pt-4 border-t border-slate-700 flex justify-end gap-x-4"><a href="{{ url_for('challenges.edit_challenge', challenge_id=challenge.id) }}" class="text-sm font-semibold text-primary-blue hover:underline">Edit</a><form action="{{ url_for('challenges.delete_challenge', challenge_id=challenge.id) }}" method="POST" onsubmit="return confirm('Are you sure?');"><button type="submit" class="text-sm font-semibold text-red-500 hover:underline">Delete</button></form></div>{% endif %}
             </div>
             {% endfor %}
         </div>
@@ -62,90 +104,41 @@
 
     <!-- Section 3: My Ongoing Challenges -->
     <section>
-        <h2 class="text-2xl font-bold mb-4">🚀 My Ongoing Challenges</h2>
+        <h2 class="text-3xl font-bold mb-4 text-accent-green">🚀 My Ongoing Challenges</h2>
         {% if ongoing %}
         <div class="space-y-6">
             {% for challenge in ongoing %}
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-                <div class="flex justify-between items-start flex-wrap gap-2">
-                    <div>
-                        <h3 class="text-xl font-bold">{{ challenge.title }}</h3>
-                        <p class="text-slate-600 dark:text-slate-300 mt-1 text-sm">{{ challenge.description }}</p>
-                    </div>
-                    <span class="text-sm font-semibold text-slate-500 whitespace-nowrap">{{ challenge.time_left }}</span>
-                </div>
+            <div class="challenge-card p-6">
+                <div class="flex justify-between items-start flex-wrap gap-2"><h3 class="text-2xl font-semibold text-white">{{ challenge.title }}</h3><span class="text-sm font-semibold text-slate-400">{{ challenge.time_left }}</span></div>
+                <p class="mt-1 text-sm text-slate-400">{{ challenge.description }}</p>
                 <div class="mt-4">
-                    <div class="flex justify-between font-semibold text-sm mb-1">
-                        <span>Your Progress</span>
-                        <span>{{ challenge.progress }}/{{ challenge.total_problems }} Solved</span>
-                    </div>
-                    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4"><div class="h-4 rounded-full bg-indigo-600" style="width: {{ challenge.progress_percent }}%;"></div></div>
+                    <div class="flex justify-between text-sm font-semibold text-slate-300"><p>Your Progress</p><p>{{ challenge.progress }}/{{ challenge.total_problems }} Solved</p></div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5 mt-1"><div class="h-2.5 rounded-full bg-gradient-to-r from-accent-green to-primary-blue" style="width: {{ challenge.progress_percent }}%;"></div></div>
                 </div>
-                
-                <!-- THIS IS THE FIX: Added the problem list back into the card -->
-                <div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4">
-                    <h4 class="font-semibold text-sm">Problems in this challenge:</h4>
-                    <ul class="list-disc list-inside mt-2 text-sm space-y-1">
-                        {% for problem in challenge.problems %}
-                        <li><a href="https://leetcode.com/problems/{{ problem.titleSlug }}/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ problem.title }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <!-- Participant Status Section -->
-                <div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
-                    <div>
-                        <h4 class="font-semibold text-sm text-green-500">Completed ({{ challenge.participants_completed|length }})</h4>
-                        <div class="flex flex-wrap gap-2 mt-1">
-                            {% for p in challenge.participants_completed %}<span class="text-xs font-medium px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300">{{ p.username }}</span>{% else %}<span class="text-xs text-slate-400">No one has finished yet.</span>{% endfor %}
-                        </div>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-sm text-yellow-500">In Progress ({{ challenge.participants_inprogress|length }})</h4>
-                        <div class="flex flex-wrap gap-2 mt-1">
-                            {% for p in challenge.participants_inprogress %}<span class="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-400">{{ p.username }}</span>{% else %}<span class="text-xs text-slate-400">No one is currently in progress.</span>{% endfor %}
-                        </div>
-                    </div>
-                    {% if challenge.participants_invited %}
-                    <div>
-                        <h4 class="font-semibold text-sm text-gray-500">Invited ({{ challenge.participants_invited|length }})</h4>
-                        <div class="flex flex-wrap gap-2 mt-1">
-                            {% for p in challenge.participants_invited %}<span class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">{{ p.username }}</span>{% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-                
-                {% if challenge.creatorUsername == session.leetcode_username %}<div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-end gap-x-4"><a href="{{ url_for('challenges.edit_challenge', challenge_id=challenge.id) }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a><form action="{{ url_for('challenges.delete_challenge', challenge_id=challenge.id) }}" method="POST" onsubmit="return confirm('Are you sure?');"><button type="submit" class="text-sm font-semibold text-red-600 dark:text-red-500 hover:underline">Delete</button></form></div>{% endif %}
+                <div class="mt-4 pt-4 border-t border-slate-700"><h4 class="font-semibold text-sm mb-2 text-primary-blue">🧩 Problems:</h4><ul class="list-disc list-inside space-y-1 text-sm text-slate-300">{% for problem in challenge.problems %}<li><a href="https://leetcode.com/problems/{{ problem.titleSlug }}/" class="hover:text-accent-purple underline" target="_blank">{{ problem.title }}</a></li>{% endfor %}</ul></div>
+                <div class="mt-4 pt-4 border-t border-slate-700"><h4 class="font-semibold text-sm mb-2 text-primary-blue">👥 Participants Status:</h4><div class="flex flex-wrap gap-2">{% for p in challenge.participants_completed %}<span class="text-xs bg-accent-green text-dark-bg px-2 py-1 rounded-full font-semibold">{{ p.username }} ✅</span>{% endfor %}{% for p in challenge.participants_inprogress %}<span class="text-xs bg-accent-lime text-dark-bg px-2 py-1 rounded-full font-semibold">{{ p.username }} ⏳</span>{% endfor %}{% for p in challenge.participants_invited %}<span class="text-xs bg-slate-700 text-white px-2 py-1 rounded-full font-semibold">{{ p.username }} ✉️</span>{% endfor %}</div></div>
+                {% if challenge.creatorUsername == session.leetcode_username %}<div class="mt-4 pt-4 border-t border-slate-700 flex justify-end gap-x-4"><a href="{{ url_for('challenges.edit_challenge', challenge_id=challenge.id) }}" class="text-sm text-primary-blue hover:underline font-semibold">Edit</a><form action="{{ url_for('challenges.delete_challenge', challenge_id=challenge.id) }}" method="POST" onsubmit="return confirm('Are you sure?');"><button type="submit" class="text-sm text-red-500 hover:text-red-400 underline font-semibold">Delete</button></form></div>{% endif %}
             </div>
             {% endfor %}
         </div>
         {% elif not invitations and not pending %}
-        <div class="text-center py-10 bg-white dark:bg-slate-800 rounded-lg"><p class="text-slate-500 dark:text-slate-400">You have no ongoing challenges. Create one to get started!</p></div>
+        <div class="challenge-card text-center py-12"><p class="text-slate-400">No ongoing challenges. Create one now to stay consistent!</p></div>
         {% endif %}
     </section>
 
     <!-- Section 4: Challenge Archive -->
     <section>
-        <h2 class="text-2xl font-bold mb-4">📜 Challenge Archive</h2>
+        <h2 class="text-3xl font-bold mb-4">📜 Challenge Archive</h2>
         {% if completed_expired %}
         <div class="space-y-4">
             {% for challenge in completed_expired %}
-            <div class="bg-white dark:bg-slate-800/80 p-4 rounded-lg shadow-sm opacity-70 hover:opacity-100 transition">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">{{ challenge.title }}</h3>
-                    {% if challenge.is_fully_completed %}<span class="text-xs font-bold px-2 py-1 rounded-full bg-green-200 text-green-800">🎉 Group Goal Met!</span>
-                    {% elif challenge.is_completed_by_user %}<span class="text-xs font-bold px-2 py-1 rounded-full bg-blue-200 text-blue-800">You Finished!</span>
-                    {% elif challenge.is_expired %}<span class="text-xs font-bold px-2 py-1 rounded-full bg-red-200 text-red-800">Expired</span>
-                    {% elif challenge.user_status == 'declined' %}<span class="text-xs font-bold px-2 py-1 rounded-full bg-gray-200 text-gray-800">Declined</span>
-                    {% else %}<span class="text-xs font-bold px-2 py-1 rounded-full bg-yellow-200 text-yellow-800">Incomplete</span>
-                    {% endif %}
-                </div>
+            <div class="bg-dark-card p-4 rounded-lg shadow-md border border-slate-700 opacity-80 hover:opacity-100 transition-opacity">
+                <div class="flex justify-between items-center"><h3 class="text-lg font-semibold text-white">{{ challenge.title }}</h3>{% if challenge.is_fully_completed %}<span class="text-xs bg-accent-green/30 text-accent-green px-2 py-1 rounded-full font-semibold">🎉 Group Goal Met!</span>{% elif challenge.is_completed_by_user %}<span class="text-xs bg-primary-blue/30 text-primary-blue px-2 py-1 rounded-full font-semibold">You Finished!</span>{% elif challenge.is_expired %}<span class="text-xs bg-red-500/30 text-red-500 px-2 py-1 rounded-full font-semibold">Expired</span>{% elif challenge.user_status == 'declined' %}<span class="text-xs bg-slate-700/30 text-slate-400 px-2 py-1 rounded-full font-semibold">Declined</span>{% else %}<span class="text-xs bg-yellow-400/30 text-yellow-400 px-2 py-1 rounded-full font-semibold">Incomplete</span>{% endif %}</div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="text-center py-10 bg-white dark:bg-slate-800 rounded-lg"><p class="text-slate-500 dark:text-slate-400">Your challenge history will appear here.</p></div>
+        <div class="challenge-card text-center py-10"><p class="text-slate-400">Your challenge history will appear here.</p></div>
         {% endif %}
     </section>
 </div>

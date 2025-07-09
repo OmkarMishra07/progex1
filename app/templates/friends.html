@@ -3,20 +3,79 @@
 {% block title %}Friends | Progex 👑{% endblock %}
 
 {% block content %}
+<style>
+    /* Ensure Fira Code is used for monospaced elements, Inter for general text */
+    body {
+        font-family: 'Inter', sans-serif; /* Default body font */
+    }
+
+    /* Define CSS variables for colors from tailwind.config for use in custom CSS */
+    :root {
+        --color-primary-blue: #6366F1;
+        --color-accent-green: #00E6B8;
+        --color-accent-lime: #E0FF4F;
+        --color-accent-purple: #8B5CF6;
+        --color-dark-bg: #0F172A;
+        --color-dark-card: #1E293B;
+    }
+
+    /* Neon Button - Replicated for consistency */
+    .neon-btn {
+        background: var(--color-accent-green); /* accent-green */
+        color: var(--color-dark-bg); /* dark-bg for contrast */
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Accent green glow */
+        border: 1px solid transparent; /* Start with transparent border */
+    }
+    .neon-btn:hover {
+        background: transparent; /* Transparent on hover */
+        color: var(--color-accent-green); /* Accent green text on hover */
+        box-shadow: 0 0 12px var(--color-accent-green), 0 0 24px var(--color-accent-green); /* Stronger glow */
+        border-color: var(--color-accent-green); /* Accent green border on hover */
+        transform: scale(1.05); /* Slight scale on hover */
+    }
+
+    /* Input focus glow */
+    .input-glow:focus {
+        outline: none;
+        box-shadow: 0 0 8px var(--color-accent-green); /* Using CSS variable for consistency */
+        background-color: var(--color-dark-bg); /* Ensure background stays dark */
+        border-color: var(--color-accent-green); /* Add border color on focus */
+    }
+
+    /* Styles for difficulty labels - ensuring consistency with the theme */
+    .difficulty-easy {
+        color: var(--color-accent-green);
+        text-shadow: 0 0 5px rgba(0, 230, 184, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-medium {
+        color: var(--color-accent-lime);
+        text-shadow: 0 0 5px rgba(224, 255, 79, 0.5); /* Subtle glow */
+    }
+
+    .difficulty-hard {
+        color: #EF4444; /* Brighter Red */
+        text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); /* Subtle glow */
+    }
+</style>
+
 <div class="space-y-8">
     <div>
-        <h1 class="text-3xl font-bold">Manage Friends</h1>
-        <p class="text-slate-500 dark:text-slate-400">Add friends to compare stats and see their activity.</p>
+        <h1 class="text-3xl font-heading font-bold text-accent-green">Manage Friends</h1>
+        <p class="text-slate-400 text-lg">Add friends to compare stats and see their activity.</p>
     </div>
 
     <!-- Add Friend Form -->
-    <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold mb-4">Add a New Friend</h2>
+    <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30">
+        <h2 class="text-xl font-bold mb-4 text-primary-blue">Add a New Friend</h2>
         
-        <!-- THIS IS THE FIX: The form action now correctly points to 'social.friends_page' -->
         <form action="{{ url_for('social.friends_page') }}" method="POST" class="flex flex-col sm:flex-row gap-4">
-            <input type="text" name="friend_username" class="flex-grow w-full px-4 py-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Enter friend's LeetCode username" required>
-            <button type="submit" class="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900">
+            <input type="text" name="friend_username" class="flex-grow w-full px-4 py-3 rounded-md bg-dark-bg text-slate-200 border border-slate-700 input-glow" placeholder="Enter friend's LeetCode username" required>
+            <button type="submit" class="neon-btn px-6 py-3 rounded-md">
                 Add Friend
             </button>
         </form>
@@ -24,39 +83,42 @@
         <!-- This section for displaying messages remains the same -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <p class="mt-2 text-sm {% if category == 'error' %}text-red-500{% else %}text-green-500{% endif %}">{{ message }}</p>
-                {% endfor %}
+                <div class="space-y-2 mt-4">
+                    {% for category, message in messages %}
+                        <p class="text-sm {% if category == 'error' %}text-red-500{% else %}text-accent-green{% endif %}">{{ message }}</p>
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
     </div>
 
     <!-- Friend List -->
     <div>
-        <h2 class="text-2xl font-bold mb-4">Your Friends</h2>
+        <h2 class="text-2xl font-heading font-bold mb-4 text-accent-green">Your Friends</h2>
         {% if friends %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for friend in friends %}
-            <div class="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md flex flex-col justify-between">
+            <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-accent-green/30 flex flex-col justify-between">
                 <div class="flex items-center space-x-4 mb-4">
-                    <img class="h-14 w-14 rounded-full" src="{{ friend.avatar }}" alt="{{ friend.username }}'s Avatar">
+                    <img class="h-14 w-14 rounded-full border-2 border-primary-blue shadow-md" src="{{ friend.avatar }}" alt="{{ friend.username }}'s Avatar">
                     <div>
-                        <h3 class="text-lg font-bold">{{ friend.username }}</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Total Solved: {{ friend.totalSolved }}</p>
+                        <h3 class="text-lg font-bold text-primary-blue">{{ friend.username }}</h3>
+                        <p class="text-sm text-slate-400">Total Solved: <span class="font-semibold text-accent-lime">{{ friend.totalSolved }}</span></p>
                     </div>
                 </div>
                 <div class="flex items-center justify-between">
-                    <span class="font-semibold">🔥 {{ friend.streak }} Day Streak</span>
-                    <!-- FIX: The remove form action now correctly points to 'social.remove_friend' -->
+                    <span class="font-semibold text-accent-green">🔥 {{ friend.streak }} Day Streak</span>
                     <form action="{{ url_for('social.remove_friend', friend_username=friend.username) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this friend?');">
-                        <button type="submit" class="text-sm text-red-500 hover:text-red-700 font-semibold">Remove</button>
+                        <button type="submit" class="text-sm text-red-500 hover:text-red-400 font-semibold transition-colors duration-200">Remove</button>
                     </form>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-slate-500 dark:text-slate-400">You haven't added any friends yet. Add one above to get started!</p>
+        <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30 text-center">
+            <p class="text-slate-400">You haven't added any friends yet. Add one above to get started!</p>
+        </div>
         {% endif %}
     </div>
 </div>
