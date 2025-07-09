@@ -3,78 +3,37 @@
 {% block title %}{{ stats.username }}'s Dashboard | Progex 👑{% endblock %}
 
 {% block content %}
-<style>
-    /* Ensure Fira Code is used for monospaced elements, Inter for general text */
-    body {
-        font-family: 'Inter', sans-serif; /* Default body font */
-    }
 
-    /* Define CSS variables for colors from tailwind.config for use in custom CSS */
+<!-- Custom CSS for the Coder/Terminal Theme -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
     :root {
-        --color-primary-blue: #6366F1;
-        --color-accent-green: #00E6B8;
-        --color-accent-lime: #E0FF4F;
-        --color-accent-purple: #8B5CF6;
+        --color-primary-blue: #818CF8;
+        --color-accent-green: #34D399;
+        --color-accent-lime: #A3E635;
+        --color-accent-red: #EF4444;
         --color-dark-bg: #0F172A;
         --color-dark-card: #1E293B;
     }
 
-    /* Neon Button - Replicated for consistency */
-    .neon-btn {
-        background: var(--color-accent-green); /* accent-green */
-        color: var(--color-dark-bg); /* dark-bg for contrast */
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        box-shadow: 0 0 8px var(--color-accent-green); /* Accent green glow */
-        border: 1px solid transparent; /* Start with transparent border */
-    }
-    .neon-btn:hover {
-        background: transparent; /* Transparent on hover */
-        color: var(--color-accent-green); /* Accent green text on hover */
-        box-shadow: 0 0 12px var(--color-accent-green), 0 0 24px var(--color-accent-green); /* Stronger glow */
-        border-color: var(--color-accent-green); /* Accent green border on hover */
-        transform: scale(1.05); /* Slight scale on hover */
-    }
-
-    /* Difficulty colors - ensuring consistency with the theme */
-    .difficulty-easy {
-        color: var(--color-accent-green);
-        text-shadow: 0 0 5px rgba(0, 230, 184, 0.5); /* Subtle glow */
-    }
-
-    .difficulty-medium {
-        color: var(--color-accent-lime);
-        text-shadow: 0 0 5px rgba(224, 255, 79, 0.5); /* Subtle glow */
-    }
-
-    .difficulty-hard {
-        color: #EF4444; /* Brighter Red */
-        text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); /* Subtle glow */
-    }
-
-    /* Custom hover underline for links */
     .group .hover-underline-animation {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 0;
-        height: 0.5px; /* Thinner line */
-        background-color: var(--color-accent-green); /* Green underline */
-        transition: all 0.3s ease;
+        position: absolute; left: 0; bottom: -2px; width: 0; height: 2px;
+        background-color: var(--color-accent-green); transition: width 0.3s ease-in-out;
     }
-    .group:hover .hover-underline-animation {
-        width: 100%;
-    }
+    .group:hover .hover-underline-animation { width: 100%; }
+
+    .difficulty-easy { color: var(--color-accent-green); text-shadow: 0 0 5px rgba(52, 211, 153, 0.5); }
+    .difficulty-medium { color: var(--color-accent-lime); text-shadow: 0 0 5px rgba(163, 230, 53, 0.5); }
+    .difficulty-hard { color: var(--color-accent-red); text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
 </style>
 
-<div class="space-y-8">
-    <!-- User Profile Section -->
-    <div class="flex items-center space-x-4 bg-dark-card p-6 rounded-2xl shadow-xl border border-accent-green/30">
+<div class="space-y-12">
+    <!-- User Profile Header -->
+    <div class="flex items-center space-x-6 bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30">
         <img class="h-24 w-24 rounded-full border-2 border-primary-blue shadow-lg" src="{{ stats.avatar }}" alt="User Avatar">
         <div>
-            <h1 class="text-4xl font-heading font-bold text-accent-green">{{ stats.username }}</h1>
+            <h1 class="text-4xl font-bold text-white" style="font-family: 'Fira Code', monospace;">{{ stats.username }}</h1>
             <p class="text-slate-400 text-lg">Competitive Coding Dashboard</p>
         </div>
     </div>
@@ -82,25 +41,24 @@
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30 text-center">
-            <h3 class="text-sm font-medium text-slate-400">Total Solved</h3>
+            <h3 class="text-sm font-medium text-slate-400 uppercase tracking-wider">Total Solved</h3>
             <p class="mt-2 text-5xl font-bold text-accent-lime">{{ stats.totalSolved }}</p>
         </div>
         <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30 text-center">
-            <h3 class="text-sm font-medium text-slate-400">Overall Rank</h3>
+            <h3 class="text-sm font-medium text-slate-400 uppercase tracking-wider">Overall Rank</h3>
             <p class="mt-2 text-5xl font-bold text-primary-blue">
-                {% if stats.globalRanking != 'N/A' %}
-                    <span class="text-accent-green">#</span>{{ stats.globalRanking }}
-                {% else %}
-                    {{ stats.globalRanking }}
-                {% endif %}
+                {% if stats.globalRanking != 'N/A' %}<span class="text-accent-green text-3xl">#</span>{{ stats.globalRanking }}{% else %}{{ stats.globalRanking }}{% endif %}
             </p>
         </div>
-        <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30 text-center">
-            <h3 class="text-sm font-medium text-slate-400">Current Streak</h3>
-            <p class="mt-2 text-5xl font-bold text-accent-green">🔥 {{ stats.streak }} Days</p>
+        <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30">
+            <h3 class="text-sm font-medium text-slate-400 text-center uppercase tracking-wider">Streaks</h3>
+            <div class="mt-3 grid grid-cols-2 gap-4 text-center">
+                <div><p class="text-4xl font-bold text-white">🔥 {{ stats.streak }}</p><p class="text-xs font-semibold text-slate-400">CURRENT</p></div>
+                <div><p class="text-4xl font-bold text-white">🏆 {{ stats.maxStreak }}</p><p class="text-xs font-semibold text-slate-400">MAX</p></div>
+            </div>
         </div>
         <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30">
-            <h3 class="text-sm font-medium text-slate-400 text-center">Difficulty Breakdown</h3>
+            <h3 class="text-sm font-medium text-slate-400 text-center uppercase tracking-wider">Difficulty Breakdown</h3>
             <div class="mt-3 grid grid-cols-3 gap-4 text-center">
                 <div><p class="text-3xl font-bold difficulty-easy">{{ stats.easySolved }}</p><p class="text-xs font-semibold text-slate-400">✅ EASY</p></div>
                 <div><p class="text-3xl font-bold difficulty-medium">{{ stats.mediumSolved }}</p><p class="text-xs font-semibold text-slate-400">🟡 MEDIUM</p></div>
@@ -112,25 +70,17 @@
     <!-- Recent Problems & Daily Challenge Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2">
-            <h2 class="text-2xl font-heading font-bold mb-4 text-accent-green">Recent Problems Solved</h2>
-            <div class="bg-dark-card rounded-2xl shadow-xl border border-accent-green/30 overflow-hidden">
+            <h2 class="text-2xl font-bold mb-4 text-white">Recent Problems Solved</h2>
+            <div class="bg-dark-card rounded-2xl shadow-xl border border-primary-blue/30 overflow-hidden">
                 <ul role="list" class="divide-y divide-slate-700">
                     {% for problem in problems %}
                     <li class="px-6 py-4 transition duration-200 hover:bg-slate-700/50">
                         <div class="flex items-center justify-between">
                             <div>
-                                <a href="https://leetcode.com/problems/{{ problem.titleSlug }}" target="_blank"
-                                   class="text-lg font-semibold text-primary-blue hover:text-accent-green relative group">
-                                    {{ problem.title }}
-                                    <span class="hover-underline-animation"></span>
-                                </a>
-                                <p class="text-sm text-slate-400 font-mono">Language: {{ problem.lang }}</p>
+                                <a href="https://leetcode.com/problems/{{ problem.titleSlug }}" target="_blank" class="text-lg font-semibold text-primary-blue hover:text-accent-green relative group">{{ problem.title }}<span class="hover-underline-animation"></span></a>
+                                <p class="text-sm text-slate-400" style="font-family: 'Fira Code', monospace;">Language: {{ problem.lang }}</p>
                             </div>
-                            <span class="text-sm text-slate-400">
-                                <span class="font-semibold {% if problem.statusDisplay == 'Accepted' %}text-accent-green{% else %}text-red-500{% endif %}">
-                                    {{ problem.statusDisplay }}
-                                </span>
-                            </span>
+                            <span class="font-semibold {% if problem.statusDisplay == 'Accepted' %}text-accent-green{% else %}text-accent-red{% endif %}">{{ problem.statusDisplay }}</span>
                         </div>
                     </li>
                     {% else %}
@@ -140,27 +90,27 @@
             </div>
         </div>
         <div class="lg:col-span-1">
-            <h2 class="text-2xl font-heading font-bold mb-4 text-accent-green">Daily Challenge</h2>
+            <h2 class="text-2xl font-bold mb-4 text-white">Daily Challenge</h2>
             {% if daily %}
-            <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30">
-                <div class="flex justify-between items-start">
-                    <h3 class="text-xl font-bold text-primary-blue">{{ daily.title }}</h3>
-                    <span class="px-3 py-1 text-sm font-bold rounded-full difficulty-{{ daily.difficulty.lower() }}">{{ daily.difficulty.upper() }}</span>
+            <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30 h-full flex flex-col">
+                <div class="flex-grow">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-bold text-white">{{ daily.title }}</h3>
+                        <span class="px-2 py-0.5 text-xs font-bold rounded-full difficulty-{{ daily.difficulty.lower() }} border border-current">{{ daily.difficulty.upper() }}</span>
+                    </div>
+                    <p class="mt-2 text-slate-400">Official challenge from LeetCode to build discipline.</p>
                 </div>
-                <p class="mt-2 text-slate-400">Official challenge from LeetCode to build discipline.</p>
                 {% if is_completed %}
                     <div class="mt-4 flex items-center justify-center space-x-2 bg-accent-green/20 text-accent-green p-3 rounded-md border border-accent-green/50">
-                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span class="font-semibold">Completed! Well done.</span>
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        <span class="font-semibold">Completed!</span>
                     </div>
                 {% else %}
-                    <a href="{{ daily.link }}" target="_blank" class="mt-4 inline-block w-full text-center neon-btn">Solve Now →</a>
+                    <a href="{{ daily.link }}" target="_blank" class="mt-4 inline-block w-full text-center bg-accent-green text-dark-bg px-5 py-3 text-md font-semibold rounded-lg shadow-md hover:bg-transparent hover:text-accent-green hover:border-accent-green border border-transparent transition-all">Solve Now →</a>
                 {% endif %}
             </div>
             {% else %}
-            <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30 text-center">
-                <p class="text-slate-500">Could not load the daily challenge.</p>
-            </div>
+            <div class="bg-dark-card p-6 rounded-2xl shadow-xl border border-primary-blue/30 text-center"><p class="text-slate-500">Could not load the daily challenge.</p></div>
             {% endif %}
         </div>
     </div>
