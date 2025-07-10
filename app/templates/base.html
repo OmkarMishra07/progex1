@@ -33,24 +33,18 @@
                 },
             },
         };
-        document.documentElement.classList.add('dark'); // Force dark mode
+        document.documentElement.classList.add('dark');
     </script>
 
     <style>
         html, body { overflow-x: hidden; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0F172A; /* Solid dark background */
-            position: relative;
-        }
+        body { font-family: 'Inter', sans-serif; background: #0F172A; position: relative; }
         body::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image:
                 linear-gradient(to right, rgba(0, 230, 184, 0.08) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0, 230, 184, 0.08) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.8;
-            z-index: -1;
+            background-size: 40px 40px; opacity: 0.8; z-index: -1;
         }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #1E293B; }
@@ -85,6 +79,8 @@
                         {% if session.leetcode_username %}
                             <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Dashboard<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('social.friends_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Friends<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
+                            <!-- THIS IS THE NEW LINK -->
+                            <a href="{{ url_for('social.requests_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Requests<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('social.leaderboard_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Leaderboard<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('challenges.challenges_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Challenges<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('study_plan.view_study_plan') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Study Plan<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
@@ -95,7 +91,7 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Dark Mode Toggle (Now integrated into this block) -->
+                    <!-- Dark Mode Toggle -->
                     <button id="theme-toggle" type="button" class="hidden sm:inline-flex ml-6 p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg></button>
 
                     <!-- Mobile Menu Button (Hamburger Icon) -->
@@ -115,6 +111,8 @@
                 {% if session.leetcode_username %}
                     <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Dashboard</a>
                     <a href="{{ url_for('social.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Friends</a>
+                    <!-- THIS IS THE NEW LINK -->
+                    <a href="{{ url_for('social.requests_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Requests</a>
                     <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Leaderboard</a>
                     <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Challenges</a>
                     <a href="{{ url_for('study_plan.view_study_plan') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Study Plan</a>
@@ -130,19 +128,7 @@
     <!-- Main Content -->
     <main class="w-full min-h-screen px-6 sm:px-10 lg:px-16 py-10 sm:py-14">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="space-y-3 mb-8">
-                {% for category, message in messages %}
-                    <div class="max-w-4xl mx-auto rounded-xl p-4 shadow-md transform transition-all duration-300 hover:scale-[1.01] {% if category == 'error' %}bg-red-800/40 text-red-300 border border-red-700{% else %}bg-emerald-800/40 text-emerald-300 border border-emerald-700{% endif %}">
-                        <p class="font-medium flex items-center">
-                            {% if category == 'error' %}<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
-                            {% else %}<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>{% endif %}
-                            {{ message }}
-                        </p>
-                    </div>
-                {% endfor %}
-                </div>
-            {% endif %}
+            {% if messages %}<div class="space-y-3 mb-8">{% for category, message in messages %}<div class="max-w-4xl mx-auto rounded-xl p-4 shadow-md transform transition-all duration-300 hover:scale-[1.01] {% if category == 'error' %}bg-red-800/40 text-red-300 border border-red-700{% else %}bg-emerald-800/40 text-emerald-300 border border-emerald-700{% endif %}"><p class="font-medium flex items-center">{% if category == 'error' %}<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>{% else %}<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>{% endif %}{{ message }}</p></div>{% endfor %}</div>{% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
@@ -154,16 +140,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
-            // For dark mode toggle, you might need a separate button for mobile if the main one is hidden
+            if (mobileMenuButton && mobileMenu) { mobileMenuButton.addEventListener('click', function() { mobileMenu.classList.toggle('hidden'); }); }
+            const themeToggle = document.getElementById('theme-toggle');
+            if(themeToggle) { themeToggle.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); }); }
             const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-            if (themeToggleMobile) {
-                themeToggleMobile.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); });
-            }
+            if (themeToggleMobile) { themeToggleMobile.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); }); }
         });
     </script>
 </body>

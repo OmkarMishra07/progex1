@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Friend Requests | Progex 👑{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold">Friend Requests</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Accept or decline requests to connect with other coders.</p>
+    </div>
+
+    <!-- List of Pending Requests -->
+    <div class="space-y-4">
+        {% if requests %}
+            {% for req in requests %}
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md flex items-center justify-between">
+                <div>
+                    <p class="font-semibold">{{ req.from_user }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">wants to be your friend.</p>
+                </div>
+                <div class="flex items-center gap-x-3">
+                    <form action="{{ url_for('social.respond_to_request', request_id=req.id, action='accept') }}" method="POST">
+                        <button type="submit" class="bg-green-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-green-500 text-sm">Accept</button>
+                    </form>
+                    <form action="{{ url_for('social.respond_to_request', request_id=req.id, action='reject') }}" method="POST">
+                        <button type="submit" class="bg-red-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-500 text-sm">Reject</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-10 bg-white dark:bg-slate-800 rounded-lg">
+                <p class="text-slate-500 dark:text-slate-400">You have no pending friend requests.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

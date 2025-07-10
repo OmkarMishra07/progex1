@@ -217,6 +217,91 @@ NEETCODE_150_QUESTIONS = [
     {'order': 6, 'topic': 'Two Pointers', 'title': 'Two Sum II - Input Array Is Sorted', 'titleSlug': 'two-sum-ii-input-array-is-sorted', 'difficulty': 'Medium', 'videoSolution': 'https://www.youtube.com/watch?v=cQ1Oz4ckceM'},
     {'order': 7, 'topic': 'Two Pointers', 'title': '3Sum', 'titleSlug': '3sum', 'difficulty': 'Medium', 'videoSolution': 'https://www.youtube.com/watch?v=jzZfxsIWhSc'},
 ]
+# In app/services/firebase_service.py
+# ... (keep all the existing functions) ...
+
+# --- NEW Functions for Friend Request System ---
+
+def create_friend_request(from_user, to_user):
+    """Creates a new friend request document in the 'friend_requests' collection."""
+    db = _get_db()
+    # Check if a request already exists to prevent spam
+    existing_request_query = db.collection('friend_requests').where(
+        filter=FieldFilter('from_user', '==', from_user)
+    ).where(
+        filter=FieldFilter('to_user', '==', to_user)
+    ).limit(1)
+    
+    if len(list(existing_request_query.stream())) > 0:
+        return "Request already sent."
+
+    request_data = {
+        'from_user': from_user,
+        'to_user': to_user,
+        'status': 'pending',
+        'timestamp': firestore.SERVER_TIMESTAMP
+    }
+    db.collection('friend_requests').add(request_data)
+    return "Request sent successfully."
+
+def get_pending_requests(username):
+    """Fetches all pending friend requests for a given user."""
+    db = _get_db()
+    requests_ref = db.collection('friend_requests').where(
+        filter=FieldFilter('to_user', '==', username)
+    ).where(
+        filter=FieldFilter('status', '==', 'pending')
+    ).order_by('timestamp', direction='DESCENDING')
+    
+    requests = []
+    for doc in requests_ref.stream():
+        req_data = doc.to_dict()
+        req_data['id'] = doc.id
+        requests.append(req_data)
+    return requests
+
+def accept_friend_request(request_id):
+    """Accepts a friend request, adds friends to both users, and deletes the request."""
+    db = _get_db()
+    request_ref = db.collection('friend_requests').document(request_id)
+    
+    # Use a transaction to ensure all operations succeed or none do
+    @firestore.transactional
+    def update_in_transaction(transaction, request_ref):
+        request_snapshot = request_ref.get(transaction=transaction)
+        if not request_snapshot.exists:
+            raise Exception("Request does not exist.")
+            
+        request_data = request_snapshot.to_dict()
+        from_user = request_data['from_user']
+        to_user = request_data['to_user']
+        
+        # Add each user to the other's friend list
+        from_user_ref = db.collection('users').document(from_user)
+        to_user_ref = db.collection('users').document(to_user)
+        
+        transaction.update(from_user_ref, {'friends': firestore.ArrayUnion([to_user])})
+        transaction.update(to_user_ref, {'friends': firestore.ArrayUnion([from_user])})
+        
+        # Delete the request document now that it's handled
+        transaction.delete(request_ref)
+
+    try:
+        update_in_transaction(db.transaction(), request_ref)
+        return True
+    except Exception as e:
+        print(f"Error accepting friend request: {e}")
+        return False
+
+def reject_friend_request(request_id):
+    """Deletes a friend request document."""
+    db = _get_db()
+    try:
+        db.collection('friend_requests').document(request_id).delete()
+        return True
+    except Exception as e:
+        print(f"Error rejecting friend request: {e}")
+        return False
 
 def seed_neetcode_plan():
     """
@@ -244,3 +329,4 @@ def seed_neetcode_plan():
     except Exception as e:
         print(f"ERROR during NeetCode seeding: {e}")
         return f"An error occurred during NeetCode seeding: {e}"
+    
