@@ -1,12 +1,13 @@
 # ==============================================================================
 # Dashboard Routes
 # ------------------------------------------------------------------------------
-# This file handles the logic for the main user dashboard.
-# The /daily route and all related logic have been removed for simplification.
+# This is the definitive version that correctly passes the notification count
+# to the template, fixing the UndefinedError.
 # ==============================================================================
 
 from flask import Blueprint, render_template, session, redirect, url_for, flash
-from app.services import leetcode_api
+# We need to import firebase_service to get the request count
+from app.services import leetcode_api, firebase_service 
 
 bp = Blueprint('dashboard', __name__)
 
@@ -14,7 +15,7 @@ bp = Blueprint('dashboard', __name__)
 def user_dashboard():
     """
     Renders the main dashboard page for the logged-in user.
-    Fetches user stats and recent submissions.
+    Fetches user stats, recent submissions, and friend request count.
     """
     username = session.get('leetcode_username')
     if not username:
@@ -22,6 +23,9 @@ def user_dashboard():
 
     # Fetch the primary user stats from the API service.
     stats = leetcode_api.get_user_stats(username)
+    
+    # FIX: Initialize the count here to ensure it always has a value
+    pending_requests_count = 0
     
     # This is a crucial error check. If the API fails, we prevent a crash.
     if not stats:
@@ -33,12 +37,15 @@ def user_dashboard():
         }
         problems = []
     else:
-        # If stats were fetched successfully, get the recent submissions.
+        # If stats were fetched successfully, get the other necessary data.
         problems = leetcode_api.get_recent_submissions(username, 10)
+        # FIX: Fetch the count of pending friend requests
+        pending_requests_count = len(firebase_service.get_pending_requests(username))
 
-    # Render the template, passing only the necessary data.
+    # Render the template, passing all necessary data, including the new count.
     return render_template('dashboard.html', 
                            stats=stats, 
-                           problems=problems)
+                           problems=problems,
+                           pending_requests_count=pending_requests_count)
 
-# The '/daily' route and its function 'daily_challenge_page()' have been completely removed.
+# The '/daily' route has been removed.

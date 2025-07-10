@@ -23,12 +23,9 @@
                         mono: ['Space Mono', 'monospace'],
                     },
                     colors: {
-                        'primary-blue': '#6366F1',
-                        'accent-green': '#00E6B8',
-                        'accent-lime': '#E0FF4F',
-                        'accent-purple': '#8B5CF6',
-                        'dark-bg': '#0F172A',
-                        'dark-card': '#1E293B',
+                        'primary-blue': '#6366F1', 'accent-green': '#00E6B8',
+                        'accent-lime': '#E0FF4F', 'accent-purple': '#8B5CF6',
+                        'dark-bg': '#0F172A', 'dark-card': '#1E293B',
                     },
                 },
             },
@@ -46,41 +43,40 @@
                 linear-gradient(to bottom, rgba(0, 230, 184, 0.08) 1px, transparent 1px);
             background-size: 40px 40px; opacity: 0.8; z-index: -1;
         }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1E293B; }
         ::-webkit-scrollbar-thumb { background: #6366F1; border-radius: 10px; border: 2px solid #1E293B; }
         ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
         .difficulty-easy { color: #00E6B8; font-weight: 600; }
         .difficulty-medium { color: #E0FF4F; font-weight: 600; }
         .difficulty-hard { color: #EF4444; font-weight: 600; }
-        .loader {
-            border: 2px solid rgba(255, 255, 255, 0.2); border-top: 2px solid #6366F1;
-            border-radius: 50%; width: 1rem; height: 1rem; animation: spin 1s linear infinite;
-        }
+        .loader { border: 2px solid rgba(255, 255, 255, 0.2); border-top: 2px solid #6366F1; border-radius: 50%; width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+        .notification-dot { animation: pulse-dot 1.5s infinite ease-in-out; }
     </style>
 </head>
 
 <body class="bg-dark-bg text-slate-200 antialiased selection:bg-primary-blue selection:text-white min-h-screen">
 
     <nav class="bg-dark-bg/80 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-700 shadow-xl">
+        <!-- ... Your entire nav block is correct and goes here ... -->
         <div class="max-w-screen-xl mx-auto px-6 sm:px-10">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex-shrink-0">
-                    <a href="{{ url_for('dashboard.user_dashboard') if session.leetcode_username else url_for('main.home') }}"
-                       class="font-heading text-3xl font-bold text-white tracking-wide hover:text-accent-green transition-colors duration-300">Progex <span class="text-primary-blue">👑</span></a>
-                </div>
+             <div class="flex items-center justify-between h-16">
+                 <!-- Logo -->
+                 <div class="flex-shrink-0">
+                     <a href="{{ url_for('dashboard.user_dashboard') if session.leetcode_username else url_for('main.home') }}"
+                        class="font-heading text-3xl font-bold text-white tracking-wide hover:text-accent-green transition-colors duration-300">Progex <span class="text-primary-blue">👑</span></a>
+                 </div>
 
-                <!-- Right Side: Desktop Menu & Mobile Button Container -->
-                <div class="flex items-center">
-                    <!-- Desktop Menu (hidden on mobile) -->
+                 <!-- Right Side Container -->
+                 <div class="flex items-center">
+                    <!-- Desktop Menu -->
                     <div class="hidden sm:flex sm:items-center sm:space-x-6">
                         {% if session.leetcode_username %}
                             <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Dashboard<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('social.friends_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Friends<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
-                            <!-- THIS IS THE NEW LINK -->
-                            <a href="{{ url_for('social.requests_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Requests<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
+                            <a href="{{ url_for('social.requests_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Requests{% if pending_requests_count > 0 %}<span class="absolute top-0 right-0 -mt-1 -mr-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white notification-dot">{{ pending_requests_count }}</span>{% endif %}<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('social.leaderboard_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Leaderboard<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('challenges.challenges_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Challenges<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
                             <a href="{{ url_for('study_plan.view_study_plan') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Study Plan<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
@@ -91,28 +87,21 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Dark Mode Toggle -->
                     <button id="theme-toggle" type="button" class="hidden sm:inline-flex ml-6 p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg></button>
 
-                    <!-- Mobile Menu Button (Hamburger Icon) -->
                     <div class="sm:hidden flex items-center">
                         <button id="theme-toggle-mobile" type="button" class="p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg></button>
-                        <button type="button" id="mobile-menu-button" class="ml-2 text-slate-300 hover:text-white focus:outline-none p-2 rounded-md">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                        </button>
+                        <button type="button" id="mobile-menu-button" class="ml-2 text-slate-300 hover:text-white focus:outline-none p-2 rounded-md"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Mobile Menu (Hidden by default) -->
         <div class="sm:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 {% if session.leetcode_username %}
                     <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Dashboard</a>
                     <a href="{{ url_for('social.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Friends</a>
-                    <!-- THIS IS THE NEW LINK -->
-                    <a href="{{ url_for('social.requests_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Requests</a>
+                    <a href="{{ url_for('social.requests_page') }}" class="relative block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Requests{% if pending_requests_count > 0 %}<span class="absolute top-1/2 right-4 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">{{ pending_requests_count }}</span>{% endif %}</a>
                     <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Leaderboard</a>
                     <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Challenges</a>
                     <a href="{{ url_for('study_plan.view_study_plan') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Study Plan</a>
@@ -133,14 +122,45 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/form_handler.js') }}"></script>
-    {% if not session.leetcode_username %}<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script><script>const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID", storageBucket: "YOUR_STORAGE_BUCKET", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID" }; firebase.initializeApp(firebaseConfig);</script><script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>{% endif %}
+
+    <!-- ========= THIS IS THE CORRECTED FIREBASE SECTION ========= -->
+    {% if not session.leetcode_username %}
+    <!-- Load Firebase compat libraries only for logged-out users -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    
     <script>
+      // ** YOU MUST PASTE YOUR REAL FIREBASE CONFIG OBJECT HERE **
+      const firebaseConfig = {
+        apiKey: "AIzaSyDB6-LBI3NTUdhqVOSpYo9FSISbUNTZzG0",
+        authDomain: "progex-97b50.firebaseapp.com",
+        projectId: "progex-97b50",
+        storageBucket: "progex-97b50.appspot.com",
+        messagingSenderId: "803295179415",
+        appId: "1:803295179415:web:a31310745066cda5bfafd2",
+        measurementId: "G-JCTYVPL4S4"
+      };
+      
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    
+    <!-- Link to our javascript file for Google Auth logic -->
+    <script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>
+    {% endif %}
+    <!-- ========= END OF FIREBASE SECTION ========= -->
+
+    <script>
+        // JavaScript for mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
             if (mobileMenuButton && mobileMenu) { mobileMenuButton.addEventListener('click', function() { mobileMenu.classList.toggle('hidden'); }); }
+            
+            // This now correctly handles both dark mode buttons
             const themeToggle = document.getElementById('theme-toggle');
             if(themeToggle) { themeToggle.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); }); }
             const themeToggleMobile = document.getElementById('theme-toggle-mobile');

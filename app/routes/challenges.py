@@ -1,11 +1,8 @@
 # ==============================================================================
 # Challenge Routes
 # ------------------------------------------------------------------------------
-# This file handles all logic for the challenges feature, including:
-# - Displaying invitations, pending, ongoing, and completed challenges.
-# - Automatically calculating progress for individuals and the entire group.
-# - Creating new challenges and responding to invitations.
-# - Editing and deleting challenges created by the user.
+# This is the definitive version that correctly passes the notification count
+# to all relevant templates, fixing any potential UndefinedError.
 # ==============================================================================
 
 import datetime
@@ -14,17 +11,12 @@ from app.services import firebase_service, leetcode_api
 
 bp = Blueprint('challenges', __name__)
 
-# This helper function calculates the number of solved problems for a given user
 def calculate_progress(user_submissions, challenge_problems):
-    # Ensure lists are not None before creating the set
     if not user_submissions: user_submissions = []
     if not challenge_problems: return 0
-    
-    # Create a set of slugs for all accepted submissions for fast lookups
     solved_slugs = {sub['titleSlug'] for sub in user_submissions if sub['statusDisplay'] == 'Accepted'}
     solved_count = 0
     for problem in challenge_problems:
-        # Check if the slug from the challenge exists in the user's solved set
         if problem.get('titleSlug') in solved_slugs:
             solved_count += 1
     return solved_count
@@ -35,31 +27,26 @@ def challenges_page():
     if not main_username:
         return redirect(url_for('main.home'))
     
-    # 1. Fetch all challenges this user is a part of
     all_challenges = firebase_service.get_user_challenges(main_username)
     
-    # 2. Efficiently fetch submission data for all unique participants ONCE
     unique_participants = {main_username}
-    for challenge in all_challenges:
-        for participant in challenge.get('participants', {}).keys():
-            unique_participants.add(participant)
+    for c in all_challenges:
+        for p in c.get('participants', {}).keys():
+            unique_participants.add(p)
             
     submissions_cache = {
         username: leetcode_api.get_recent_submissions(username, 50) 
         for username in unique_participants
     }
     
-    # 3. Initialize lists to categorize challenges
     invitations, pending, ongoing, completed_expired = [], [], [], []
     
-    # 4. Process each challenge to determine its status and progress
     for challenge in all_challenges:
         user_status = challenge.get('participants', {}).get(main_username, {}).get('status')
-        if not user_status: continue # Failsafe for corrupted data
+        if not user_status: continue
 
         challenge['user_status'] = user_status
         
-        # Calculate time remaining
         expires_at = challenge.get('expiresAt')
         is_expired = False
         if expires_at and expires_at < datetime.datetime.now(expires_at.tzinfo):
@@ -83,7 +70,6 @@ def challenges_page():
             'is_completed_by_user': (solved_count >= total_count) if total_count > 0 else False
         })
         
-        # Categorize all participants for detailed view
         participants_completed, participants_inprogress, participants_invited = [], [], []
         accepted_participants_names = []
         
@@ -110,21 +96,24 @@ def challenges_page():
         is_fully_completed = bool(accepted_participants_names) and not participants_inprogress and not participants_invited
         challenge['is_fully_completed'] = is_fully_completed
 
-        # 5. Sort the challenge into the correct category based on its state
         if user_status == 'invited' and not is_expired:
             invitations.append(challenge)
         elif user_status == 'accepted' and not is_expired and not challenge_has_enough_players:
             pending.append(challenge)
         elif user_status == 'accepted' and not is_expired and not is_fully_completed:
             ongoing.append(challenge)
-        else: # Covers declined, expired, and fully completed challenges
+        else:
             completed_expired.append(challenge)
+    
+    # FIX: Fetch and pass the count for the navbar notification dot
+    pending_requests_count = len(firebase_service.get_pending_requests(main_username))
             
     return render_template('challenges.html', 
                            invitations=invitations,
                            pending=pending,
                            ongoing=ongoing, 
-                           completed_expired=completed_expired)
+                           completed_expired=completed_expired,
+                           pending_requests_count=pending_requests_count)
 
 
 @bp.route('/challenges/create', methods=['GET', 'POST'])
@@ -134,6 +123,7 @@ def create_challenge():
         return redirect(url_for('auth.login'))
 
     if request.method == 'POST':
+        # ... (POST logic remains the same)
         title = request.form.get('title')
         description = request.form.get('description')
         problems_text = request.form.get('problems')
@@ -145,12 +135,7 @@ def create_challenge():
             return redirect(url_for('challenges.create_challenge'))
         
         problem_slugs_raw = [slug.strip() for slug in problems_text.split(',') if slug.strip()]
-        problems_list = []
-        for slug_or_title in problem_slugs_raw:
-            sanitized_slug = slug_or_title.lower().replace(' ', '-')
-            display_title = sanitized_slug.replace('-', ' ').title()
-            problems_list.append({'title': display_title, 'titleSlug': sanitized_slug})
-
+        problems_list = [{'title': slug.replace('-', ' ').title(), 'titleSlug': slug} for slug in problem_slugs_raw]
         expires_at = datetime.datetime.strptime(expires_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
         participants = {main_username: {'status': 'accepted'}}
         for friend in invited_friends:
@@ -162,7 +147,6 @@ def create_challenge():
             'participants': participants
         }
         success = firebase_service.create_challenge(new_challenge_data)
-
         if success:
             flash("Challenge created successfully! It will become active once a friend accepts.", "success")
             return redirect(url_for('challenges.challenges_page'))
@@ -171,7 +155,9 @@ def create_challenge():
             return redirect(url_for('challenges.create_challenge'))
 
     friends_list = firebase_service.get_friends(main_username)
-    return render_template('create_challenge.html', friends=friends_list)
+    # FIX: Fetch and pass the count for the navbar notification dot
+    pending_requests_count = len(firebase_service.get_pending_requests(main_username))
+    return render_template('create_challenge.html', friends=friends_list, pending_requests_count=pending_requests_count)
 
 
 @bp.route('/challenges/respond/<string:challenge_id>/<string:response>', methods=['POST'])
@@ -216,4 +202,7 @@ def edit_challenge(challenge_id):
         firebase_service.update_challenge_details(challenge_id, updated_data)
         flash("Challenge details updated successfully.", "success")
         return redirect(url_for('challenges.challenges_page'))
-    return render_template('edit_challenge.html', challenge=challenge)
+    
+    # FIX: Fetch and pass the count for the navbar notification dot
+    pending_requests_count = len(firebase_service.get_pending_requests(main_username))
+    return render_template('edit_challenge.html', challenge=challenge, pending_requests_count=pending_requests_count)

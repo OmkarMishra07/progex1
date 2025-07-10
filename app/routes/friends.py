@@ -1,15 +1,14 @@
 # ==============================================================================
 # Social Routes (Friends, Requests, Leaderboard)
 # ------------------------------------------------------------------------------
-# This blueprint handles all social features for Progex.
-# It now includes a full friend request system instead of direct adding.
+# This is the definitive version that correctly passes the notification count
+# to all relevant templates, fixing the UndefinedError.
 # ==============================================================================
 
 import json
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.services import firebase_service, leetcode_api
 
-# The blueprint's internal name remains 'social'
 bp = Blueprint('social', __name__)
 
 
@@ -23,19 +22,15 @@ def friends_page():
     if not main_username:
         return redirect(url_for('main.home'))
 
-    # This route now handles SENDING friend requests
     if request.method == 'POST':
         friend_username = request.form.get('friend_username', '').lower()
         user_data = firebase_service.get_user_data(main_username)
         current_friends = user_data.get('friends', [])
         
-        # Validation checks
         if friend_username and friend_username != main_username and friend_username not in current_friends:
-            # Check if the user exists on LeetCode before sending a request
             if leetcode_api.get_user_stats(friend_username):
-                # Instead of adding directly, we now create a request
                 result = firebase_service.create_friend_request(main_username, friend_username)
-                flash(result, "info") # The service returns "Request sent" or "Request already sent"
+                flash(result, "info")
             else:
                 flash(f"LeetCode user '{friend_username}' not found.", "error")
         elif friend_username in current_friends:
@@ -45,28 +40,25 @@ def friends_page():
         
         return redirect(url_for('social.friends_page'))
     
-    # The GET request still shows the current friends list
     friend_usernames = firebase_service.get_friends(main_username)
-    # Fetch stats for each friend to display their cards
     friends_data = [stats for username in friend_usernames if (stats := leetcode_api.get_user_stats(username))]
     
-    return render_template('friends.html', friends=friends_data)
+    # FIX: Fetch and pass the count for the navbar notification dot
+    pending_requests_count = len(firebase_service.get_pending_requests(main_username))
+    
+    return render_template('friends.html', friends=friends_data, pending_requests_count=pending_requests_count)
 
 
 @bp.route('/friends/remove/<string:friend_username>', methods=['POST'])
 def remove_friend(friend_username):
     """
     Handles removing a friend from both the user's and the friend's lists.
-    This logic needs to be updated for a two-way removal.
     """
     main_username = session.get('leetcode_username')
     if not main_username:
         return redirect(url_for('main.home'))
     
-    # Ensure usernames are lowercase for database operations
     friend_username_lower = friend_username.lower()
-    
-    # Two-way removal
     firebase_service.remove_friend(main_username, friend_username_lower)
     firebase_service.remove_friend(friend_username_lower, main_username)
     
@@ -97,12 +89,14 @@ def leaderboard_page():
             
     sorted_leaderboard = sorted(leaderboard_data, key=lambda x: x.get('totalSolved', 0), reverse=True)
     
+    # FIX: Fetch and pass the count for the navbar notification dot
+    pending_requests_count = len(firebase_service.get_pending_requests(main_username))
+    
     return render_template('leaderboard.html', 
                            leaderboard_data=sorted_leaderboard,
-                           chart_data=sorted_leaderboard)
+                           chart_data=sorted_leaderboard,
+                           pending_requests_count=pending_requests_count)
 
-
-# --- NEW ROUTES for handling the friend request system ---
 
 @bp.route('/requests')
 def requests_page():
@@ -112,7 +106,9 @@ def requests_page():
         return redirect(url_for('auth.login'))
         
     pending_requests = firebase_service.get_pending_requests(main_username)
-    return render_template('requests.html', requests=pending_requests)
+    
+    # The count is just the length of the list we already fetched
+    return render_template('requests.html', requests=pending_requests, pending_requests_count=len(pending_requests))
 
 
 @bp.route('/requests/respond/<string:request_id>/<string:action>', methods=['POST'])
