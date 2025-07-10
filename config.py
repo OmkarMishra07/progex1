@@ -7,7 +7,6 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     FIREBASE_CREDENTIALS_PATH = os.environ.get('FIREBASE_CREDENTIALS_PATH')
     LEETCODE_API_ENDPOINT = 'https://leetcode.com/graphql'
-    LEETCODE_WRAPPER_API_URL = 'https://leetcode-api-pied.vercel.app'
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 587)
     MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'False') == 'True'

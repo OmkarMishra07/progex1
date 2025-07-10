@@ -57,4 +57,7 @@ def create_app(config_class=Config):
     from .routes.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
 
+    from .routes.study_plan import bp as study_plan_bp
+    app.register_blueprint(study_plan_bp)
+
     return app

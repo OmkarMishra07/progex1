@@ -2,7 +2,7 @@
 # Firebase Database Service
 # ------------------------------------------------------------------------------
 # This file handles all communication with the Google Firestore database.
-# This version contains the definitive fix for the challenge query limitation.
+# This version includes the new, automatic seeder for the NeetCode 150 plan.
 # ==============================================================================
 
 from flask import current_app
@@ -11,8 +11,8 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 from werkzeug.security import generate_password_hash
 import datetime
 
+# This helper function makes the code cleaner by getting the db connection
 def _get_db():
-    """Returns the Firestore client from the current Flask app's config."""
     return current_app.config['DB']
 
 # --- User & Authentication Functions ---
@@ -25,7 +25,6 @@ def get_user_data(username):
 
 def get_user_by_email(email):
     db = _get_db()
-    # Using FieldFilter is the modern, preferred way for queries.
     users_ref = db.collection('users').where(filter=FieldFilter('email', '==', email)).limit(1)
     docs = users_ref.stream()
     for doc in docs:
@@ -103,27 +102,15 @@ def create_challenge(challenge_data):
         return False
 
 def get_user_challenges(username):
-    """
-    THIS IS THE CORRECTED FUNCTION.
-    It fetches all active challenges and then filters them in Python code
-    to bypass Firestore's query limitations on special characters in field names.
-    """
     db = _get_db()
-    # 1. Fetch ALL active challenges from the database.
-    # This query is simple and has no issues with special characters.
     challenges_ref = db.collection('challenges').where(filter=FieldFilter('status', '==', 'active'))
     docs = challenges_ref.stream()
-    
     user_challenges = []
     for doc in docs:
         challenge_data = doc.to_dict()
-        # 2. In our Python code, we check if the current user is a participant.
-        # This is safe and works with any username string.
         if username in challenge_data.get('participants', {}):
             challenge_data['id'] = doc.id
             user_challenges.append(challenge_data)
-            
-    # 3. Return the correctly filtered list.
     return user_challenges
 
 def update_challenge_participant_status(challenge_id, username, new_status):
@@ -159,6 +146,35 @@ def update_challenge_details(challenge_id, updated_data):
         print(f"Error updating challenge {challenge_id}: {e}")
         return False
 
+# --- Study Plan Functions ---
+def get_study_plan_questions():
+    """Fetches the entire list of curated study plan questions, ordered correctly."""
+    db = _get_db()
+    docs = db.collection('study_plan_questions').order_by('order').stream()
+    return [doc.to_dict() for doc in docs]
+
+def get_or_initialize_user_study_plan(username):
+    """Gets a user's study plan progress. If it doesn't exist, creates it."""
+    db = _get_db()
+    user_ref = db.collection('users').document(username)
+    user_doc = user_ref.get()
+    if user_doc.exists:
+        user_data = user_doc.to_dict()
+        if 'study_plan_progress' in user_data:
+            return user_data['study_plan_progress']
+        else:
+            initial_progress = {'current_question_index': 0}
+            user_ref.update({'study_plan_progress': initial_progress})
+            return initial_progress
+    return None
+
+def advance_user_study_plan(username, current_index):
+    """Increments the user's current question index by 1."""
+    db = _get_db()
+    user_ref = db.collection('users').document(username)
+    user_ref.update({'study_plan_progress.current_question_index': firestore.Increment(1)})
+    return True
+
 # --- Database Seeder ---
 def _create_seed_user(username, email, password):
     db = _get_db()
@@ -188,3 +204,43 @@ def seed_database():
         return "Database seeded successfully!"
     except Exception as e:
         return f"An error occurred during seeding: {e}"
+
+# --- NEW: NeetCode 150 Data & Seeder Function ---
+NEETCODE_150_QUESTIONS = [
+    # A small sample of the NeetCode 150 list.
+    # You can expand this list to include all 150 problems.
+    {'order': 1, 'topic': 'Arrays & Hashing', 'title': 'Contains Duplicate', 'titleSlug': 'contains-duplicate', 'difficulty': 'Easy', 'videoSolution': 'https://www.youtube.com/watch?v=3OamzN90kPg'},
+    {'order': 2, 'topic': 'Arrays & Hashing', 'title': 'Valid Anagram', 'titleSlug': 'valid-anagram', 'difficulty': 'Easy', 'videoSolution': 'https://www.youtube.com/watch?v=9UtInBqnCgA'},
+    {'order': 3, 'topic': 'Arrays & Hashing', 'title': 'Two Sum', 'titleSlug': 'two-sum', 'difficulty': 'Easy', 'videoSolution': 'https://www.youtube.com/watch?v=KLlXCFG5TnA'},
+    {'order': 4, 'topic': 'Arrays & Hashing', 'title': 'Group Anagrams', 'titleSlug': 'group-anagrams', 'difficulty': 'Medium', 'videoSolution': 'https://www.youtube.com/watch?v=vzdNOK2oB2E'},
+    {'order': 5, 'topic': 'Two Pointers', 'title': 'Valid Palindrome', 'titleSlug': 'valid-palindrome', 'difficulty': 'Easy', 'videoSolution': 'https://www.youtube.com/watch?v=jJXJ16kPFWg'},
+    {'order': 6, 'topic': 'Two Pointers', 'title': 'Two Sum II - Input Array Is Sorted', 'titleSlug': 'two-sum-ii-input-array-is-sorted', 'difficulty': 'Medium', 'videoSolution': 'https://www.youtube.com/watch?v=cQ1Oz4ckceM'},
+    {'order': 7, 'topic': 'Two Pointers', 'title': '3Sum', 'titleSlug': '3sum', 'difficulty': 'Medium', 'videoSolution': 'https://www.youtube.com/watch?v=jzZfxsIWhSc'},
+]
+
+def seed_neetcode_plan():
+    """
+    Automatically populates the `study_plan_questions` collection with the
+    NeetCode list. It is idempotent and will not add duplicates.
+    """
+    db = _get_db()
+    collection_ref = db.collection('study_plan_questions')
+    
+    # Check if the collection is already populated
+    if len(list(collection_ref.limit(1).stream())) > 0:
+        return "The NeetCode study plan has already been seeded."
+        
+    try:
+        print("Seeding: Populating NeetCode study plan...")
+        batch = db.batch()
+        for question in NEETCODE_150_QUESTIONS:
+            doc_id = f"q{question['order']}"
+            doc_ref = collection_ref.document(doc_id)
+            batch.set(doc_ref, question)
+        
+        batch.commit()
+        return f"Successfully seeded {len(NEETCODE_150_QUESTIONS)} NeetCode questions!"
+
+    except Exception as e:
+        print(f"ERROR during NeetCode seeding: {e}")
+        return f"An error occurred during NeetCode seeding: {e}"

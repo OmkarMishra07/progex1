@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Study Plan | Progex 👑{% endblock %}
+
+{% block content %}
+<style>
+    :root { --color-primary-blue: #818CF8; --color-accent-green: #34D399; --color-accent-lime: #A3E635; --color-dark-card: #1E293B; }
+    .progex-card { background: var(--color-dark-card); padding: 2rem; border-radius: 1.25rem; border: 1px solid rgba(129, 140, 248, 0.2); box-shadow: 0 0 15px rgba(15, 23, 42, 0.5); }
+    .neon-btn { background: var(--color-accent-green); color: #0F172A; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3); }
+    .neon-btn:hover { background: transparent; color: var(--color-accent-green); border-color: var(--color-accent-green); transform: translateY(-2px); }
+    .secondary-btn { border: 1px solid var(--color-primary-blue); color: var(--color-primary-blue); padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s ease; }
+    .secondary-btn:hover { background-color: var(--color-primary-blue); color: white; }
+    .difficulty-easy { color: var(--color-accent-green); } .difficulty-medium { color: var(--color-accent-lime); } .difficulty-hard { color: #EF4444; }
+</style>
+
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-10">
+        <h1 class="text-4xl sm:text-5xl font-bold text-white">Progex Curated Collection:</h1>
+        <p class="text-slate-300 text-xl mt-2">Master the problems that truly matter for top tech roles.</p>
+    </div>
+
+    <!-- Current Question / Completion Card -->
+    {% if all_questions_completed %}
+    <div class="progex-card text-center mb-12">
+        <h2 class="text-4xl font-bold text-accent-green">🎉 Congratulations! 🎉</h2>
+        <p class="text-slate-300 text-xl mt-4">You have completed the entire DSA study plan. Incredible work!</p>
+    </div>
+    {% elif current_question %}
+    <div class="progex-card mb-12">
+        <div class="mb-6">
+            <div class="flex justify-between font-semibold text-sm mb-1 text-slate-300"><span>Overall Progress</span><span>Question {{ progress.current_question_index + 1 }} of {{ total_questions }}</span></div>
+            {% set percentage = ((progress.current_question_index) / total_questions * 100)|round|int %}
+            <div class="w-full bg-slate-700 rounded-full h-3"><div class="h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" style="width: {{ percentage }}%;"></div></div>
+        </div>
+        <div class="text-center">
+            <p class="text-sm font-medium text-indigo-400 uppercase tracking-widest">{{ current_question.topic }}</p>
+            <h2 class="text-4xl font-bold text-white my-3">{{ current_question.title }}</h2>
+            <span class="px-3 py-1 text-sm font-bold rounded-full difficulty-{{ current_question.difficulty.lower() }} border border-current">{{ current_question.difficulty.upper() }}</span>
+        </div>
+        <div class="mt-8">
+            {% if is_current_solved %}
+            <form action="{{ url_for('study_plan.advance_to_next_question') }}" method="POST" class="text-center loading-on-submit">
+                <p class="text-green-400 mb-4 font-semibold">✅ Problem Solved! Ready for the next one?</p>
+                <button type="submit" class="w-full sm:w-auto text-center neon-btn text-lg">Next Question →</button>
+            </form>
+            {% else %}
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="https://leetcode.com/problems/{{ current_question.titleSlug }}/" target="_blank" class="w-full sm:w-auto text-center neon-btn text-lg">Go to Problem</a>
+                <a href="{{ current_question.videoSolution }}" target="_blank" class="w-full sm:w-auto text-center secondary-btn text-lg">Watch Solution</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- NEW: Full Roadmap Section -->
+    <div class="space-y-8">
+        {% for topic, questions in grouped_questions.items() %}
+        <div class="progex-card p-6">
+            <h3 class="text-2xl font-bold text-indigo-400 border-b border-slate-700 pb-3 mb-4">{{ topic }}</h3>
+            <ul class="space-y-3">
+                {% for q in questions %}
+                <li class="flex items-center justify-between p-2 rounded-md transition-colors hover:bg-slate-700/50">
+                    <div class="flex items-center">
+                        {% if q.titleSlug in solved_slugs %}
+                            <span class="text-green-400 mr-3">✅</span>
+                        {% else %}
+                            <span class="text-slate-500 mr-3">⬜️</span>
+                        {% endif %}
+                        <a href="https://leetcode.com/problems/{{ q.titleSlug }}/" target="_blank" class="text-slate-200 hover:text-white">{{ q.title }}</a>
+                    </div>
+                    <span class="text-sm font-semibold difficulty-{{ q.difficulty.lower() }}">{{ q.difficulty }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

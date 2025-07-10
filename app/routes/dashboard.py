@@ -1,54 +1,44 @@
-# app/routes/dashboard.py
+# ==============================================================================
+# Dashboard Routes
+# ------------------------------------------------------------------------------
+# This file handles the logic for the main user dashboard.
+# The /daily route and all related logic have been removed for simplification.
+# ==============================================================================
 
-from flask import Blueprint, render_template, session, redirect, url_for
+from flask import Blueprint, render_template, session, redirect, url_for, flash
 from app.services import leetcode_api
 
 bp = Blueprint('dashboard', __name__)
 
-# THE FIX: Added a trailing slash to the route.
 @bp.route('/dashboard/')
 def user_dashboard():
+    """
+    Renders the main dashboard page for the logged-in user.
+    Fetches user stats and recent submissions.
+    """
     username = session.get('leetcode_username')
     if not username:
         return redirect(url_for('main.home'))
 
+    # Fetch the primary user stats from the API service.
     stats = leetcode_api.get_user_stats(username)
-    recent_problems = leetcode_api.get_recent_submissions(username, 20)
-    daily = leetcode_api.get_daily_challenge()
     
-    is_completed = False
-    if daily:
-        daily_slug = daily['link'].split('/problems/')[-1].strip('/')
-        for sub in recent_problems:
-            if sub['titleSlug'] == daily_slug and sub['statusDisplay'] == 'Accepted':
-                is_completed = True
-                break
-    
+    # This is a crucial error check. If the API fails, we prevent a crash.
+    if not stats:
+        flash("Error: Could not fetch your LeetCode data at this time. The API might be down or the username is invalid. Please try again later.", "error")
+        # Provide a fallback stats object to prevent the template from crashing.
+        stats = {
+            'username': username, 'avatar': '', 'totalSolved': '?', 'globalRanking': '?', 
+            'streak': '?', 'maxStreak': '?', 'easySolved': '?', 'mediumSolved': '?', 'hardSolved': '?'
+        }
+        problems = []
+    else:
+        # If stats were fetched successfully, get the recent submissions.
+        problems = leetcode_api.get_recent_submissions(username, 10)
+
+    # Render the template, passing only the necessary data.
     return render_template('dashboard.html', 
                            stats=stats, 
-                           problems=recent_problems[:10],
-                           daily=daily,
-                           is_completed=is_completed)
+                           problems=problems)
 
-
-# THE FIX: Also added a trailing slash here for consistency.
-@bp.route('/daily/')
-def daily_challenge_page():
-    username = session.get('leetcode_username')
-    if not username:
-        return redirect(url_for('main.home'))
-        
-    daily = leetcode_api.get_daily_challenge()
-    if not daily:
-        return render_template('daily.html', daily=None, is_completed=False)
-        
-    recent_submissions = leetcode_api.get_recent_submissions(username, 20)
-    is_completed = False
-    daily_slug = daily['link'].split('/problems/')[-1].strip('/')
-    
-    for sub in recent_submissions:
-        if sub['titleSlug'] == daily_slug and sub['statusDisplay'] == 'Accepted':
-            is_completed = True
-            break
-            
-    return render_template('daily.html', daily=daily, is_completed=is_completed)
+# The '/daily' route and its function 'daily_challenge_page()' have been completely removed.

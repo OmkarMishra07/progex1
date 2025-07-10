@@ -1,11 +1,14 @@
 # ==============================================================================
 # Main Application Routes
 # ------------------------------------------------------------------------------
-# This file contains the core, non-feature-specific routes for the app.
+# This file contains the core, non-feature-specific routes for the app,
+# including the developer routes for seeding the database.
 # ==============================================================================
 
 from flask import Blueprint, render_template, redirect, url_for, session, flash
 from app.services import firebase_service
+from werkzeug.security import check_password_hash # Needed for delete_account
+from flask import request # Needed for delete_account
 
 bp = Blueprint('main', __name__)
 
@@ -30,25 +33,67 @@ def logout():
     """
     session.clear()
     flash("You have been successfully logged out.", "info")
-    # Redirect to the new landing page after logout
     return redirect(url_for('main.home'))
 
 
-@bp.route('/settings')
+@bp.route('/settings', methods=['GET'])
 def settings_page():
     """
-    A placeholder route for the future settings page.
+    Renders the main settings page.
     """
     if not session.get('leetcode_username'):
         return redirect(url_for('auth.login'))
     
     return render_template('settings.html')
+
+
+@bp.route('/delete-account', methods=['POST'])
+def delete_account():
+    """
+    Handles the account deletion request.
+    Requires password confirmation for security.
+    """
+    main_username = session.get('leetcode_username')
+    if not main_username:
+        return redirect(url_for('auth.login'))
+
+    password = request.form.get('password')
+    user_data = firebase_service.get_user_data(main_username)
+    
+    if user_data and check_password_hash(user_data.get('password_hash', ''), password):
+        success = firebase_service.delete_user_account(main_username)
+        if success:
+            session.clear()
+            flash('Your account has been permanently deleted.', 'info')
+            return redirect(url_for('main.home'))
+        else:
+            flash('An error occurred while deleting your account. Please try again.', 'error')
+            return redirect(url_for('main.settings_page'))
+    else:
+        flash('Incorrect password. Account deletion cancelled.', 'error')
+        return redirect(url_for('main.settings_page'))
+
+
+# --- Developer Seeder Routes ---
+
 @bp.route('/seed-database')
 def seed_database_route():
     """
     A special, hidden route for developers to automatically populate the
-    database with sample data for testing.
+    database with sample user data for testing.
     """
     result = firebase_service.seed_database()
     flash(result, 'info')
     return redirect(url_for('auth.login'))
+
+
+@bp.route('/seed-neetcode-plan')
+def seed_neetcode_route():
+    """
+    A special, hidden route for developers to automatically populate the
+    database with the NeetCode 150 study plan questions.
+    """
+    result = firebase_service.seed_neetcode_plan()
+    flash(result, 'info')
+    # Redirect to the study plan page so you can immediately see the result
+    return redirect(url_for('study_plan.view_study_plan'))
