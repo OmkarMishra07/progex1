@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Progex 👑{% endblock %}</title>
+    <title>{% block title %}Progex > Terminal{% endblock %}</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://rsms.me/" />
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon" />
 
     <script>
@@ -18,15 +18,40 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        heading: ['Oxanium', 'sans-serif'],
-                        sans: ['Inter', 'sans-serif'],
+                        // Use monospace fonts for the terminal look
                         mono: ['Space Mono', 'monospace'],
+                        display: ['VT323', 'monospace'],
                     },
                     colors: {
-                        'primary-blue': '#6366F1', 'accent-green': '#00E6B8',
-                        'accent-lime': '#E0FF4F', 'accent-purple': '#8B5CF6',
-                        'dark-bg': '#0F172A', 'dark-card': '#1E293B',
+                        // A new color palette for the terminal theme
+                        'primary-green': '#00ff41',
+                        'dark-bg': '#0a0a0a',
+                        'dark-card': '#1a1a1a',
+                        'accent-red': '#ff4141',
+                        'accent-amber': '#ffb800',
                     },
+                    animation: {
+                        // Custom animations
+                        'glitch': 'glitch 1.5s linear infinite',
+                        'typing': 'typing 3.5s steps(40, end), blink-caret .75s step-end infinite',
+                        'blink': 'blink-caret 1s step-end infinite',
+                    },
+                    keyframes: {
+                        // Keyframes for the animations
+                        glitch: {
+                          '2%, 64%': { transform: 'translate(2px, 0) skew(0deg)' },
+                          '4%, 60%': { transform: 'translate(-2px, 0) skew(0deg)' },
+                          '62%': { transform: 'translate(0, 0) skew(5deg)' },
+                        },
+                        typing: {
+                          'from': { width: '0' },
+                          'to': { width: '100%' },
+                        },
+                        'blink-caret': {
+                          'from, to': { borderColor: 'transparent', color: 'transparent' },
+                          '50%': { borderColor: '#00ff41', color: '#00ff41' },
+                        },
+                    }
                 },
             },
         };
@@ -34,79 +59,105 @@
     </script>
 
     <style>
-        html, body { overflow-x: hidden; }
-        body { font-family: 'Inter', sans-serif; background: #0F172A; position: relative; }
-        body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image:
-                linear-gradient(to right, rgba(0, 230, 184, 0.08) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 230, 184, 0.08) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.8; z-index: -1;
+        /* Base styles and terminal-specific effects */
+        html, body { 
+            overflow-x: hidden; 
+            background-color: #0a0a0a;
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1E293B; }
-        ::-webkit-scrollbar-thumb { background: #6366F1; border-radius: 10px; border: 2px solid #1E293B; }
-        ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
-        .difficulty-easy { color: #00E6B8; font-weight: 600; }
-        .difficulty-medium { color: #E0FF4F; font-weight: 600; }
-        .difficulty-hard { color: #EF4444; font-weight: 600; }
-        .loader { border: 2px solid rgba(255, 255, 255, 0.2); border-top: 2px solid #6366F1; border-radius: 50%; width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
-        .notification-dot { animation: pulse-dot 1.5s infinite ease-in-out; }
+        body { 
+            font-family: 'Space Mono', monospace; 
+            position: relative; 
+            color: #E0E0E0;
+        }
+        /* Canvas for dynamic background */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2; /* Positioned behind all content */
+        }
+        /* Custom scrollbar for the terminal theme */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 0; border: 2px solid #1a1a1a; }
+        ::-webkit-scrollbar-thumb:hover { background: #8cffad; }
+
+        /* Difficulty styles with terminal colors */
+        .difficulty-easy { color: #00ff41; font-weight: 700; text-shadow: 0 0 5px #00ff41; }
+        .difficulty-medium { color: #ffb800; font-weight: 700; text-shadow: 0 0 5px #ffb800; }
+        .difficulty-hard { color: #ff4141; font-weight: 700; text-shadow: 0 0 5px #ff4141; }
+        
+        /* Blinking cursor effect for various elements */
+        .blinking-cursor::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+            margin-left: 4px;
+        }
     </style>
 </head>
 
-<body class="bg-dark-bg text-slate-200 antialiased selection:bg-primary-blue selection:text-white min-h-screen">
+<body class="bg-dark-bg text-slate-200 antialiased selection:bg-primary-green selection:text-dark-bg min-h-screen">
+    
+    <!-- Canvas for the Matrix-style background -->
+    <canvas id="matrix-canvas"></canvas>
 
-    <nav class="bg-dark-bg/80 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-700 shadow-xl">
-        <!-- ... Your entire nav block is correct and goes here ... -->
+    <!-- Navigation bar with terminal styling -->
+    <nav class="bg-dark-bg/80 backdrop-blur-sm sticky top-0 z-50 border-b-2 border-primary-green/30">
         <div class="max-w-screen-xl mx-auto px-6 sm:px-10">
-             <div class="flex items-center justify-between h-16">
-                 <!-- Logo -->
-                 <div class="flex-shrink-0">
-                     <a href="{{ url_for('dashboard.user_dashboard') if session.leetcode_username else url_for('main.home') }}"
-                        class="font-heading text-3xl font-bold text-white tracking-wide hover:text-accent-green transition-colors duration-300">Progex <span class="text-primary-blue">👑</span></a>
-                 </div>
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo with glitch effect and blinking cursor -->
+                <div class="flex-shrink-0">
+                    <a href="{{ url_for('dashboard.user_dashboard') if session.leetcode_username else url_for('main.home') }}"
+                       class="font-display text-4xl font-bold text-primary-green tracking-wider relative inline-block">
+                       <span class="animate-glitch" style="text-shadow: 0 0 8px #00ff41;">Progex</span>
+                       <span class="blinking-cursor"></span>
+                    </a>
+                </div>
 
-                 <!-- Right Side Container -->
-                 <div class="flex items-center">
-                    <!-- Desktop Menu -->
-                    <div class="hidden sm:flex sm:items-center sm:space-x-6">
+                <!-- Right Side Container -->
+                <div class="flex items-center">
+                    <!-- Desktop Menu with terminal-style links -->
+                    <div class="hidden sm:flex sm:items-center sm:space-x-6 font-mono text-sm">
                         {% if session.leetcode_username %}
-                            <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Dashboard<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
-                            <a href="{{ url_for('social.friends_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Friends<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
-                            <a href="{{ url_for('social.requests_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Requests{% if pending_requests_count > 0 %}<span class="absolute top-0 right-0 -mt-1 -mr-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white notification-dot">{{ pending_requests_count }}</span>{% endif %}<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
-                            <a href="{{ url_for('social.leaderboard_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Leaderboard<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
-                            <a href="{{ url_for('challenges.challenges_page') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Challenges<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
-                            <a href="{{ url_for('study_plan.view_study_plan') }}" class="text-base font-medium text-slate-300 hover:text-accent-green transition-colors relative group">Study Plan<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-accent-green transition-all duration-300 group-hover:w-full"></span></a>
-                            <a href="{{ url_for('main.logout') }}" class="text-base font-medium text-slate-300 hover:text-red-500 transition-colors relative group">Logout<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-red-500 transition-all duration-300 group-hover:w-full"></span></a>
+                            <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Dashboard</a>
+                            <a href="{{ url_for('social.friends_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Friends</a>
+                            <a href="{{ url_for('social.requests_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 relative before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Requests{% if pending_requests_count > 0 %}<span class="absolute -top-1 -right-2 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>{% endif %}</a>
+                            <a href="{{ url_for('social.leaderboard_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Leaderboard</a>
+                            <a href="{{ url_for('challenges.challenges_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Challenges</a>
+                            <a href="{{ url_for('study_plan.view_study_plan') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Study Plan</a>
+                            <a href="{{ url_for('main.logout') }}" class="text-slate-300 hover:text-accent-red transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Logout</a>
                         {% else %}
-                            <a href="{{ url_for('auth.login') }}" class="text-base font-medium text-slate-300 hover:text-primary-blue transition-colors relative group">Login<span class="absolute left-0 bottom-0 w-0 h-0.5 bg-primary-blue transition-all duration-300 group-hover:w-full"></span></a>
-                            <a href="{{ url_for('auth.register') }}" class="ml-4 inline-flex items-center justify-center px-6 py-2 border border-transparent rounded-full shadow-lg text-base font-medium text-white bg-primary-blue hover:bg-indigo-700 transform hover:scale-105 transition-all duration-300">Register</a>
+                            <a href="{{ url_for('auth.login') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Login</a>
+                            <a href="{{ url_for('auth.register') }}" class="ml-4 px-5 py-2 border-2 border-primary-green text-primary-green font-bold hover:bg-primary-green hover:text-dark-bg transition-all duration-300 shadow-[0_0_10px_#00ff41]">Register</a>
                         {% endif %}
                     </div>
                     
-                    
+                    <!-- Mobile Menu Button -->
                     <div class="sm:hidden flex items-center">
-                        <button type="button" id="mobile-menu-button" class="ml-2 text-slate-300 hover:text-white focus:outline-none p-2 rounded-md"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
+                        <button type="button" id="mobile-menu-button" class="ml-2 text-slate-300 hover:text-primary-green focus:outline-none p-2 rounded-md">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Mobile Menu Panel -->
         <div class="sm:hidden hidden" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1">
+            <div class="px-2 pt-2 pb-3 space-y-1 border-t-2 border-primary-green/30">
                 {% if session.leetcode_username %}
-                    <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Dashboard</a>
-                    <a href="{{ url_for('social.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Friends</a>
-                    <a href="{{ url_for('social.requests_page') }}" class="relative block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Requests{% if pending_requests_count > 0 %}<span class="absolute top-1/2 right-4 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">{{ pending_requests_count }}</span>{% endif %}</a>
-                    <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Leaderboard</a>
-                    <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Challenges</a>
-                    <a href="{{ url_for('study_plan.view_study_plan') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Study Plan</a>
-                    <a href="{{ url_for('main.logout') }}" class="block px-3 py-2 rounded-md text-base font-medium text-red-400 hover:bg-red-900 hover:text-white">Logout</a>
+                    <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Dashboard</a>
+                    <a href="{{ url_for('social.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Friends</a>
+                    <a href="{{ url_for('social.requests_page') }}" class="relative block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Requests {% if pending_requests_count > 0 %}<span class="absolute top-1/2 right-4 -translate-y-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">{{ pending_requests_count }}</span>{% endif %}</a>
+                    <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Leaderboard</a>
+                    <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Challenges</a>
+                    <a href="{{ url_for('study_plan.view_study_plan') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Study Plan</a>
+                    <a href="{{ url_for('main.logout') }}" class="block px-3 py-2 rounded-md text-base font-medium text-accent-red hover:bg-red-900/50 hover:text-white">> Logout</a>
                 {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Login</a>
-                    <a href="{{ url_for('auth.register') }}" class="block px-3 py-2 rounded-md text-base font-medium text-primary-blue hover:bg-indigo-700 hover:text-white">Register</a>
+                    <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="block px-3 py-2 rounded-md text-base font-medium text-primary-green hover:bg-primary-green hover:text-dark-bg">> Register</a>
                 {% endif %}
             </div>
         </div>
@@ -114,55 +165,217 @@
 
     <!-- Main Content -->
     <main class="w-full min-h-screen px-6 sm:px-10 lg:px-16 py-10 sm:py-14">
+        <!-- Flashed messages styled as terminal output -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}<div class="space-y-3 mb-8">{% for category, message in messages %}<div class="max-w-4xl mx-auto rounded-xl p-4 shadow-md transform transition-all duration-300 hover:scale-[1.01] {% if category == 'error' %}bg-red-800/40 text-red-300 border border-red-700{% else %}bg-emerald-800/40 text-emerald-300 border border-emerald-700{% endif %}"><p class="font-medium flex items-center">{% if category == 'error' %}<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>{% else %}<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>{% endif %}{{ message }}</p></div>{% endfor %}</div>{% endif %}
+            {% if messages %}
+            <div class="space-y-3 mb-8">
+                {% for category, message in messages %}
+                <div class="max-w-4xl mx-auto p-4 border-l-4 font-mono text-sm
+                    {% if category == 'error' %}
+                        bg-accent-red/10 border-accent-red text-red-300 shadow-[inset_0_0_10px_rgba(255,65,65,0.2)]
+                    {% else %}
+                        bg-primary-green/10 border-primary-green text-green-300 shadow-[inset_0_0_10px_rgba(0,255,65,0.2)]
+                    {% endif %}">
+                    <p>
+                        <span class="font-bold mr-2">
+                            {% if category == 'error' %}
+                               [ERROR] >
+                            {% else %}
+                               [SUCCESS] >
+                            {% endif %}
+                        </span>{{ message }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         {% endwith %}
-        {% block content %}{% endblock %}
+        
+        {% block content %}
+        <div class="space-y-8 font-mono">
+            <div>
+                <h1 class="text-3xl font-display font-bold text-primary-green blinking-cursor">> Manage Friends</h1>
+                <p class="text-slate-400 text-lg">> Add friends to compare stats and see their activity.</p>
+            </div>
+        
+            <!-- Add Friend Form -->
+            <div class="bg-dark-card p-6 border-2 border-primary-green/30 shadow-[0_0_15px_rgba(0,255,65,0.2)]">
+                <h2 class="text-xl font-display mb-4 text-primary-green">> Add New Friend</h2>
+                
+                <form action="{{ url_for('social.friends_page') }}" method="POST" class="flex flex-col sm:flex-row gap-4">
+                    <input type="text" name="friend_username" class="flex-grow w-full px-4 py-3 bg-dark-bg text-slate-200 border-2 border-primary-green/30 focus:outline-none focus:border-primary-green focus:shadow-[0_0_8px_#00ff41]" placeholder="Enter friend's LeetCode username..." required>
+                    <button type="submit" class="px-6 py-3 border-2 border-primary-green text-primary-green font-bold hover:bg-primary-green hover:text-dark-bg transition-all duration-300 shadow-[0_0_10px_#00ff41]">
+                        > Add Friend
+                    </button>
+                </form>
+            </div>
+        
+            <!-- Friend List -->
+            <div>
+                <h2 class="text-2xl font-display font-bold mb-4 text-primary-green blinking-cursor">> Your Friends</h2>
+                {% if friends %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for friend in friends %}
+                    <div class="bg-dark-card p-6 border-2 border-primary-green/30 shadow-[0_0_15px_rgba(0,255,65,0.1)] flex flex-col justify-between">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <img class="h-14 w-14 border-2 border-primary-green" src="{{ friend.avatar }}" alt="{{ friend.username }}'s Avatar">
+                            <div>
+                                <h3 class="text-lg font-bold text-primary-green">{{ friend.username }}</h3>
+                                <p class="text-sm text-slate-400">> Solved: <span class="font-semibold text-white">{{ friend.totalSolved }}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-slate-300">🔥 {{ friend.streak }} Day Streak</span>
+                            <form id="remove-friend-form-{{ friend.username }}" action="{{ url_for('social.remove_friend', friend_username=friend.username) }}" method="POST" class="inline">
+                                <button type="button" data-username="{{ friend.username }}" class="remove-friend-btn text-sm text-accent-red hover:underline font-semibold transition-colors duration-200">> Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-dark-card p-6 border-2 border-primary-green/30 text-center">
+                    <p class="text-slate-400">> You haven't added any friends yet. Add one above to get started!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Custom Confirmation Modal -->
+        <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+            <div class="bg-dark-card border-2 border-accent-red p-8 shadow-[0_0_20px_rgba(255,65,65,0.5)] text-center animate-glitch">
+                <h3 class="text-xl font-display text-white mb-4">> Confirm Action</h3>
+                <p class="text-slate-300 mb-6">> Are you sure you want to remove this friend?</p>
+                <div class="flex justify-center gap-4">
+                    <button id="cancel-btn" class="px-6 py-2 border-2 border-slate-500 text-slate-300 font-bold hover:bg-slate-500 hover:text-white transition-all">> Cancel</button>
+                    <button id="confirm-btn" class="px-6 py-2 border-2 border-accent-red text-accent-red font-bold hover:bg-accent-red hover:text-dark-bg transition-all shadow-[0_0_10px_#ff4141]">> Confirm</button>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
     </main>
 
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/form_handler.js') }}"></script>
 
-    <!-- ========= THIS IS THE CORRECTED FIREBASE SECTION ========= -->
+    <!-- Firebase Section -->
     {% if not session.leetcode_username %}
-    <!-- Load Firebase compat libraries only for logged-out users -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-    
     <script>
-      // ** YOU MUST PASTE YOUR REAL FIREBASE CONFIG OBJECT HERE **
-      const firebaseConfig = {
-        apiKey: "AIzaSyDB6-LBI3NTUdhqVOSpYo9FSISbUNTZzG0",
-        authDomain: "progex-97b50.firebaseapp.com",
-        projectId: "progex-97b50",
-        storageBucket: "progex-97b50.appspot.com",
-        messagingSenderId: "803295179415",
-        appId: "1:803295179415:web:a31310745066cda5bfafd2",
-        measurementId: "G-JCTYVPL4S4"
-      };
-      
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
+        const firebaseConfig = {
+            apiKey: "AIzaSyDB6-LBI3NTUdhqVOSpYo9FSISbUNTZzG0",
+            authDomain: "progex-97b50.firebaseapp.com",
+            projectId: "progex-97b50",
+            storageBucket: "progex-97b50.appspot.com",
+            messagingSenderId: "803295179415",
+            appId: "1:803295179415:web:a31310745066cda5bfafd2",
+            measurementId: "G-JCTYVPL4S4"
+        };
+        firebase.initializeApp(firebaseConfig);
     </script>
-    
-    <!-- Link to our javascript file for Google Auth logic -->
     <script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>
     {% endif %}
-    <!-- ========= END OF FIREBASE SECTION ========= -->
 
     <script>
-        // JavaScript for mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenuButton && mobileMenu) { mobileMenuButton.addEventListener('click', function() { mobileMenu.classList.toggle('hidden'); }); }
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        
+            // Confirmation Modal Logic
+            const modal = document.getElementById('confirmation-modal');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const confirmBtn = document.getElementById('confirm-btn');
+            const removeFriendBtns = document.querySelectorAll('.remove-friend-btn');
+            let formToSubmit = null;
+        
+            removeFriendBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const username = this.dataset.username;
+                    formToSubmit = document.getElementById(`remove-friend-form-${username}`);
+                    if(modal) modal.classList.remove('hidden');
+                });
+            });
+        
+            if(cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    if(modal) modal.classList.add('hidden');
+                    formToSubmit = null;
+                });
+            }
+        
+            if(confirmBtn) {
+                confirmBtn.addEventListener('click', function() {
+                    if (formToSubmit) {
+                        formToSubmit.submit();
+                    }
+                });
+            }
             
-            // This now correctly handles both dark mode buttons
-            const themeToggle = document.getElementById('theme-toggle');
-            if(themeToggle) { themeToggle.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); }); }
-            const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-            if (themeToggleMobile) { themeToggleMobile.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); }); }
+            if(modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                        formToSubmit = null;
+                    }
+                });
+            }
+
+            // Matrix background animation
+            const canvas = document.getElementById('matrix-canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            const characters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const fontSize = 16;
+            let columns = Math.floor(width / fontSize);
+            let drops = [];
+
+            for (let x = 0; x < columns; x++) {
+                drops[x] = 1;
+            }
+
+            function draw() {
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.fillStyle = '#00ff41'; // Primary green color
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            let animationInterval = setInterval(draw, 33);
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                columns = Math.floor(width / fontSize);
+                drops = [];
+                for (let x = 0; x < columns; x++) {
+                    drops[x] = 1;
+                }
+                // No need to restart interval, it will adapt on the next frame
+            });
         });
     </script>
 </body>
