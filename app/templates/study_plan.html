@@ -4,79 +4,373 @@
 
 {% block content %}
 <style>
-    :root { --color-primary-blue: #818CF8; --color-accent-green: #34D399; --color-accent-lime: #A3E635; --color-dark-card: #1E293B; }
-    .progex-card { background: var(--color-dark-card); padding: 2rem; border-radius: 1.25rem; border: 1px solid rgba(129, 140, 248, 0.2); box-shadow: 0 0 15px rgba(15, 23, 42, 0.5); }
-    .neon-btn { background: var(--color-accent-green); color: #0F172A; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3); }
-    .neon-btn:hover { background: transparent; color: var(--color-accent-green); border-color: var(--color-accent-green); transform: translateY(-2px); }
-    .secondary-btn { border: 1px solid var(--color-primary-blue); color: var(--color-primary-blue); padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s ease; }
-    .secondary-btn:hover { background-color: var(--color-primary-blue); color: white; }
-    .difficulty-easy { color: var(--color-accent-green); } .difficulty-medium { color: var(--color-accent-lime); } .difficulty-hard { color: #EF4444; }
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=VT323&display=swap');
+
+    /* ============================================
+    Enhanced Terminal Theme for The Code Conqueror's Path
+    ============================================
+    */
+
+    :root {
+        --terminal-bg: #0A0F14;
+        --terminal-fg: #C2C8D3;
+        --accent-green: #33FF33;
+        --accent-blue: #33B5E5;
+        --accent-red: #FF4136;
+        --comment-gray: #5C6370;
+        --selection-bg: rgba(51, 255, 51, 0.2);
+        --cursor-blink-speed: 0.8s;
+    }
+
+    /* Body with animated grid and CRT Scanlines Effect */
+    body {
+        background-color: var(--terminal-bg);
+        font-family: 'Fira Code', monospace;
+        color: var(--terminal-fg);
+        overflow-x: hidden; /* Prevent horizontal scrollbar from animations */
+    }
+    
+    .container-wrapper {
+        position: relative;
+        z-index: 1;
+    }
+
+    .container-wrapper::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 100% 4px, 50px 50px, 50px 50px;
+        animation: scanline 15s linear infinite;
+        z-index: -1;
+        pointer-events: none;
+    }
+    
+    @keyframes scanline {
+        from { background-position-y: 0; }
+        to { background-position-y: 100vh; }
+    }
+
+    /* Blinking Cursor Animation */
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+
+    .blinking-cursor::after {
+        content: '█';
+        color: var(--accent-green);
+        font-size: 1em;
+        margin-left: 8px;
+        animation: blink var(--cursor-blink-speed) infinite;
+        display: inline-block;
+        vertical-align: baseline;
+    }
+
+    /* Main Card as a Terminal Window */
+    .progex-card {
+        background: rgba(13, 17, 23, 0.8);
+        border: 1px solid var(--comment-gray);
+        padding: 1.5rem;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        position: relative;
+        box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+
+    .progex-card:hover {
+        border-color: var(--accent-green);
+        box-shadow: 0 0 10px rgba(51, 255, 51, 0.3);
+    }
+
+    /* Terminal-style Buttons */
+    .neon-btn {
+        background: transparent;
+        color: var(--accent-green);
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--accent-green);
+        font-family: 'VT323', monospace;
+        font-size: 1.25rem;
+        transition: all 0.2s ease;
+        box-shadow: inset 0 0 0 0 var(--accent-green);
+    }
+
+    .neon-btn:hover {
+        box-shadow: inset 0 0 10px 0 var(--accent-green), inset 0 0 2px 2px var(--accent-green);
+        color: white;
+        text-shadow: 0 0 5px white;
+    }
+
+    .neon-btn.blue-variant {
+        color: var(--accent-blue);
+        border-color: var(--accent-blue);
+    }
+    .neon-btn.blue-variant:hover {
+        box-shadow: inset 0 0 10px 0 var(--accent-blue), inset 0 0 2px 2px var(--accent-blue);
+        color: white;
+    }
+    
+    /* Main Heading with CRT Glow */
+    h1.main-title {
+        font-family: 'VT323', monospace;
+        font-size: 4rem;
+        color: var(--accent-green);
+        text-shadow: 0 0 5px var(--accent-green), 0 0 15px rgba(51, 255, 51, 0.7);
+        animation: flicker 3s infinite alternate;
+    }
+    
+    @keyframes flicker {
+        0%, 18%, 22%, 25%, 53%, 57%, 100% {
+            text-shadow: 0 0 5px var(--accent-green), 0 0 15px var(--accent-green), 0 0 25px var(--accent-green);
+            opacity: 1;
+        }
+        20%, 24%, 55% {
+            text-shadow: none;
+            opacity: 0.8;
+        }
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+        border: 1px solid var(--comment-gray);
+        padding: 3px;
+        background: var(--terminal-bg);
+        height: 20px;
+    }
+    .progress-bar-animated {
+        width: var(--progress-width, 0%);
+        background: var(--accent-green);
+        height: 100%;
+        transition: width 1s ease-out;
+        box-shadow: 0 0 5px var(--accent-green);
+    }
+
+    /* Locked Chapter Styling */
+    .progex-card.locked {
+        border-style: dashed;
+        cursor: not-allowed;
+    }
+    .progex-card.locked .toggle-chapter,
+    .progex-card.locked .chapter-content {
+        pointer-events: none;
+        opacity: 0.4;
+    }
+    .progex-card.locked::after {
+        content: '// access_denied';
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        color: var(--accent-red);
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+    }
+
+    /* Roadmap Item Styling */
+    .roadmap-item {
+        padding: 0.5rem 0.25rem;
+        transition: background-color 0.2s ease;
+    }
+    .roadmap-item:hover {
+        background: var(--selection-bg);
+    }
+    .roadmap-item a:hover {
+        color: white;
+    }
+    .roadmap-prefix {
+        color: var(--comment-gray);
+    }
+    .roadmap-prefix.solved {
+        color: var(--accent-green);
+        text-shadow: 0 0 5px var(--accent-green);
+    }
+
+    /* Chapter Toggle */
+    .chapter-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-in-out;
+    }
+    .toggle-icon {
+        transition: transform 0.3s ease;
+    }
+    .toggle-chapter.open .toggle-icon {
+        transform: rotate(90deg);
+    }
+
+    /* Difficulty as Text */
+    .difficulty-text {
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+    }
+    .difficulty-easy { color: var(--accent-green); }
+    .difficulty-medium { color: var(--accent-blue); }
+    .difficulty-hard { color: var(--accent-red); }
+
+    /* Boot-up animation */
+    .boot-hidden {
+        opacity: 0;
+    }
+    .boot-animate {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
 </style>
 
-<div class="max-w-4xl mx-auto">
-    <!-- Header -->
-    <div class="text-center mb-10">
-        <h1 class="text-4xl sm:text-5xl font-bold text-white">Progex Curated Collection:</h1>
-        <p class="text-slate-300 text-xl mt-2">Master the problems that truly matter for top tech roles.</p>
-        <p class="text-slate-300 text-xl mt-2">We've gathered them to maximize your potential.</p>
+<div class="container-wrapper">
+<div class="max-w-4xl mx-auto text-slate-200 px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12 boot-hidden">
+        <h1 class="font-extrabold leading-tight main-title">
+            > The Code Conqueror's Path
+        </h1>
+        <p class="text-lg mt-4 max-w-3xl mx-auto text-slate-400">
+            <span class="text-accent-green">$</span> Embark on your journey to master Data Structures & Algorithms.
+        </p>
     </div>
 
-    <!-- Current Question / Completion Card -->
     {% if all_questions_completed %}
-    <div class="progex-card text-center mb-12">
-        <h2 class="text-4xl font-bold text-accent-green">🎉 Congratulations! 🎉</h2>
-        <p class="text-slate-300 text-xl mt-4">You have completed the entire DSA study plan. Incredible work!</p>
+    <div class="progex-card text-center mb-14 boot-hidden">
+        <h2 class="text-3xl font-bold mb-4 text-accent-green blinking-cursor">SYSTEM_MESSAGE: ALL QUESTS COMPLETE</h2>
+        <p class="text-xl mt-4">You have conquered the DSA study plan. Your legend is forged!</p>
     </div>
     {% elif current_question %}
-    <div class="progex-card mb-12">
+    <div class="progex-card mb-14 boot-hidden" id="current-quest-card">
         <div class="mb-6">
-            <div class="flex justify-between font-semibold text-sm mb-1 text-slate-300"><span>Overall Progress</span><span>Question {{ progress.current_question_index + 1 }} of {{ total_questions }}</span></div>
+            <div class="flex justify-between text-sm mb-2 text-slate-300">
+                <span>// Mission Progress</span>
+                <span>Quest {{ progress.current_question_index + 1 }} of {{ total_questions }}</span>
+            </div>
             {% set percentage = ((progress.current_question_index) / total_questions * 100)|round|int %}
-            <div class="w-full bg-slate-700 rounded-full h-3"><div class="h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" style="width: {{ percentage }}%;"></div></div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-animated" style="--progress-width: {{ percentage }}%;"></div>
+            </div>
         </div>
-        <div class="text-center">
-            <p class="text-sm font-medium text-indigo-400 uppercase tracking-widest">{{ current_question.topic }}</p>
-            <h2 class="text-4xl font-bold text-white my-3">{{ current_question.title }}</h2>
-            <span class="px-3 py-1 text-sm font-bold rounded-full difficulty-{{ current_question.difficulty.lower() }} border border-current">{{ current_question.difficulty.upper() }}</span>
+        <div class="text-left">
+            <p class="text-sm uppercase tracking-widest text-comment-gray">// ACTIVE_ZONE: {{ current_question.topic }}</p>
+            <h2 class="text-3xl sm:text-4xl font-bold my-2 text-white blinking-cursor">{{ current_question.title }}</h2>
+            <p class="difficulty-text
+                {% if current_question.difficulty == 'Easy' %}difficulty-easy
+                {% elif current_question.difficulty == 'Medium' %}difficulty-medium
+                {% else %}difficulty-hard{% endif %}">
+                &lt;difficulty: {{ current_question.difficulty.upper() }}&gt;
+            </p>
         </div>
-        <div class="mt-8">
+        <div class="mt-8 flex flex-col sm:flex-row items-center gap-4">
             {% if is_current_solved %}
-            <form action="{{ url_for('study_plan.advance_to_next_question') }}" method="POST" class="text-center loading-on-submit">
-                <p class="text-green-400 mb-4 font-semibold">✅ Problem Solved! Ready for the next one?</p>
-                <button type="submit" class="w-full sm:w-auto text-center neon-btn text-lg">Next Question →</button>
+            <form action="{{ url_for('study_plan.advance_to_next_question') }}" method="POST" class="w-full">
+                <p class="mb-4 text-accent-green font-bold">>> Quest Conquered! Execute next command.</p>
+                <button type="submit" class="w-full sm:w-auto text-center neon-btn">
+                    ./next_quest.sh
+                </button>
             </form>
             {% else %}
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="https://leetcode.com/problems/{{ current_question.titleSlug }}/" target="_blank" class="w-full sm:w-auto text-center neon-btn text-lg">Go to Problem</a>
-                <a href="{{ current_question.videoSolution }}" target="_blank" class="w-full sm:w-auto text-center secondary-btn text-lg">Watch Solution</a>
-            </div>
+            <a href="https://leetcode.com/problems/{{ current_question.titleSlug }}/" target="_blank" class="neon-btn w-full sm:w-auto text-center">
+                initiate_quest
+            </a>
+            <a href="{{ current_question.videoSolution }}" target="_blank" class="neon-btn blue-variant w-full sm:w-auto text-center">
+                request_intel
+            </a>
             {% endif %}
         </div>
     </div>
     {% endif %}
 
-    <!-- NEW: Full Roadmap Section -->
-    <div class="space-y-8">
+    <div class="space-y-4">
+        {% set unlocked_chapters = 1 %}
+        {% set chapter_index = 0 %}
         {% for topic, questions in grouped_questions.items() %}
-        <div class="progex-card p-6">
-            <h3 class="text-2xl font-bold text-indigo-400 border-b border-slate-700 pb-3 mb-4">{{ topic }}</h3>
-            <ul class="space-y-3">
-                {% for q in questions %}
-                <li class="flex items-center justify-between p-2 rounded-md transition-colors hover:bg-slate-700/50">
-                    <div class="flex items-center">
-                        {% if q.titleSlug in solved_slugs %}
-                            <span class="text-green-400 mr-3">✅</span>
-                        {% else %}
-                            <span class="text-slate-500 mr-3">⬜️</span>
-                        {% endif %}
-                        <a href="https://leetcode.com/problems/{{ q.titleSlug }}/" target="_blank" class="text-slate-200 hover:text-white">{{ q.title }}</a>
-                    </div>
-                    <span class="text-sm font-semibold difficulty-{{ q.difficulty.lower() }}">{{ q.difficulty }}</span>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+            {% set chapter_index = chapter_index + 1 %}
+            {% set solved_count = questions | selectattr("titleSlug", "in", solved_slugs) | list | length %}
+            {% set is_chapter_complete = solved_count == questions|length %}
+            {% set is_unlocked = chapter_index <= unlocked_chapters %}
+            {% set is_active_chapter = current_question.topic == topic %}
+
+            <div class="progex-card p-4 boot-hidden {% if not is_unlocked %}locked{% endif %}" data-chapter-id="{{ chapter_index }}">
+                <button type="button" class="w-full text-left text-2xl font-bold flex items-center justify-between toggle-chapter hover:text-accent-green transition duration-300 {% if is_active_chapter %}open{% endif %}">
+                    <span><span class="text-accent-blue mr-2">dir</span>{{ topic }}/</span>
+                    <span class="text-xl toggle-icon">▶</span>
+                </button>
+                <ul class="pl-4 chapter-content">
+                    {% for q in questions %}
+                    <li class="flex flex-col sm:flex-row items-start sm:items-center justify-between roadmap-item">
+                        <div class="flex items-center mb-2 sm:mb-0">
+                            {% if q.titleSlug in solved_slugs %}
+                                <span class="roadmap-prefix solved mr-3">[x]</span>
+                            {% else %}
+                                <span class="roadmap-prefix mr-3">[ ]</span>
+                            {% endif %}
+                            <a href="https://leetcode.com/problems/{{ q.titleSlug }}/" target="_blank" class="text-lg">{{ q.title }}</a>
+                        </div>
+                        <span class="text-sm font-semibold
+                            {% if q.difficulty == 'Easy' %}difficulty-easy
+                            {% elif q.difficulty == 'Medium' %}difficulty-medium
+                            {% else %}difficulty-hard{% endif %}">
+                            {{ q.difficulty.upper() }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            {% if is_chapter_complete %}
+                {% set unlocked_chapters = unlocked_chapters + 1 %}
+            {% endif %}
         {% endfor %}
     </div>
 </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Boot-up animation
+    const bootElements = document.querySelectorAll('.boot-hidden');
+    bootElements.forEach((el, index) => {
+        setTimeout(() => {
+            el.classList.add('boot-animate');
+        }, index * 100);
+    });
+
+    // Chapter toggle functionality
+    document.querySelectorAll('.toggle-chapter').forEach(btn => {
+        const card = btn.closest('.progex-card');
+        if (card.classList.contains('locked')) return;
+
+        const content = btn.nextElementSibling;
+        
+        // Function to set max-height for open chapters
+        const openChapter = (el) => {
+            el.style.maxHeight = el.scrollHeight + "px";
+        };
+        
+        // Function to close chapters
+        const closeChapter = (el) => {
+            el.style.maxHeight = null;
+        };
+
+        // Automatically open the active chapter
+        if (btn.classList.contains('open')) {
+             // Use a small timeout to ensure rendering is complete before calculating scrollHeight
+             setTimeout(() => openChapter(content), 200);
+        }
+
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('open');
+            if (btn.classList.contains('open')) {
+                openChapter(content);
+            } else {
+                closeChapter(content);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
