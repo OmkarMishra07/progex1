@@ -148,7 +148,7 @@
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/form_handler.js') }}"></script>
-    {% if not session.leetcode_username %}<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script><script>const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID", storageBucket: "YOUR_STORAGE_BUCKET", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID" }; firebase.initializeApp(firebaseConfig);</script><script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>{% endif %}
+    {% if not session.leetcode_username %}<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script><script>const firebaseConfig = { apiKey: "AIzaSyDB6-LBI3NTUdhqVOSpYo9FSISbUNTZzG0", authDomain: "progex-97b50.firebaseapp.com", projectId: "progex-97b50", storageBucket: "progex-97b50.appspot.com", messagingSenderId: "803295179415", appId: "1:803295179415:web:a31310745066cda5bfafd2" }; firebase.initializeApp(firebaseConfig);</script><script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>{% endif %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Mobile menu toggle
