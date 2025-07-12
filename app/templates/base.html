@@ -61,6 +61,8 @@
         .loader { border: 2px solid rgba(255, 255, 255, 0.2); border-top: 2px solid #00ff41; border-radius: 50%; width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .blinking-cursor::after { content: '_'; animation: blink 1s step-end infinite; margin-left: 4px; }
+        @keyframes pulse-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+        .notification-dot { animation: pulse-dot 1.5s infinite ease-in-out; }
     </style>
 </head>
 
@@ -81,21 +83,20 @@
                         {% if session.leetcode_username %}
                             <a href="{{ url_for('dashboard.user_dashboard') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Dashboard</a>
                             <a href="{{ url_for('social.friends_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Friends</a>
-                            
-                            <!-- THIS IS THE UPDATED DESKTOP LINK -->
                             <a href="{{ url_for('social.requests_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 relative before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">
                                 Requests
                                 {% if pending_requests_count > 0 %}
                                 <span class="absolute -top-1 -right-2 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>
                                 {% endif %}
                             </a>
-                            
                             <a href="{{ url_for('social.leaderboard_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Leaderboard</a>
                             <a href="{{ url_for('challenges.challenges_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Challenges</a>
                             <a href="{{ url_for('study_plan.view_study_plan') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Study Plan</a>
                             <a href="{{ url_for('main.about_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">About</a>
                             <a href="{{ url_for('main.logout') }}" class="text-slate-300 hover:text-accent-red transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Logout</a>
                         {% else %}
+                            <a href="{{ url_for('main.home') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Home</a>
+                            <a href="{{ url_for('main.about_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">About</a>
                             <a href="{{ url_for('auth.login') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Login</a>
                             <a href="{{ url_for('auth.register') }}" class="ml-4 px-5 py-2 border-2 border-primary-green text-primary-green font-bold hover:bg-primary-green hover:text-dark-bg transition-all duration-300 shadow-[0_0_10px_#00ff41]">Register</a>
                         {% endif %}
@@ -109,27 +110,20 @@
             </div>
         </div>
 
-        <!-- Mobile Menu Panel -->
         <div class="sm:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 border-t-2 border-primary-green/30">
                 {% if session.leetcode_username %}
                     <a href="{{ url_for('dashboard.user_dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Dashboard</a>
                     <a href="{{ url_for('social.friends_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Friends</a>
-                    
-                    <!-- THIS IS THE UPDATED MOBILE LINK -->
-                    <a href="{{ url_for('social.requests_page') }}" class="relative block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">
-                        > Requests
-                        {% if pending_requests_count > 0 %}
-                        <span class="absolute top-1/2 right-4 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">{{ pending_requests_count }}</span>
-                        {% endif %}
-                    </a>
-
+                    <a href="{{ url_for('social.requests_page') }}" class="relative block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Requests {% if pending_requests_count > 0 %}<span class="absolute top-1/2 right-4 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">{{ pending_requests_count }}</span>{% endif %}</a>
                     <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Leaderboard</a>
                     <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Challenges</a>
                     <a href="{{ url_for('study_plan.view_study_plan') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Study Plan</a>
                     <a href="{{ url_for('main.about_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> About</a>
                     <a href="{{ url_for('main.logout') }}" class="block px-3 py-2 rounded-md text-base font-medium text-accent-red hover:bg-red-900/50 hover:text-white">> Logout</a>
                 {% else %}
+                    <a href="{{ url_for('main.home') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Home</a>
+                    <a href="{{ url_for('main.about_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> About</a>
                     <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Login</a>
                     <a href="{{ url_for('auth.register') }}" class="block px-3 py-2 rounded-md text-base font-medium text-primary-green hover:bg-primary-green hover:text-dark-bg">> Register</a>
                 {% endif %}
@@ -137,7 +131,6 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="w-full min-h-screen px-6 sm:px-10 lg:px-16 py-10 sm:py-14">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}<div class="space-y-3 mb-8">{% for category, message in messages %}<div class="max-w-4xl mx-auto p-4 border-l-4 font-mono text-sm {% if category == 'error' %}bg-accent-red/10 border-accent-red text-red-300 shadow-[inset_0_0_10px_rgba(255,65,65,0.2)]{% else %}bg-primary-green/10 border-primary-green text-green-300 shadow-[inset_0_0_10px_rgba(0,255,65,0.2)]{% endif %}"><p><span class="font-bold mr-2">{% if category == 'error' %}[ERROR] >{% else %}[SUCCESS] >{% endif %}</span>{{ message }}</p></div>{% endfor %}</div>{% endif %}
@@ -148,44 +141,57 @@
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/form_handler.js') }}"></script>
-    {% if not session.leetcode_username %}<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script><script>const firebaseConfig = { apiKey: "AIzaSyDB6-LBI3NTUdhqVOSpYo9FSISbUNTZzG0", authDomain: "progex-97b50.firebaseapp.com", projectId: "progex-97b50", storageBucket: "progex-97b50.appspot.com", messagingSenderId: "803295179415", appId: "1:803295179415:web:a31310745066cda5bfafd2" }; firebase.initializeApp(firebaseConfig);</script><script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>{% endif %}
+    
+    {% if not session.leetcode_username %}
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDB6-LBI3NTUdhqVOSpYo9FSISbUNTZzG0",
+            authDomain: "progex-97b50.firebaseapp.com",
+            projectId: "progex-97b50",
+            storageBucket: "progex-97b50.appspot.com",
+            messagingSenderId: "803295179415",
+            appId: "1:803295179415:web:a31310745066cda5bfafd2",
+            measurementId: "G-JCTYVPL4S4"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="{{ url_for('static', filename='js/google_auth.js') }}"></script>
+    {% endif %}
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Mobile menu toggle
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
             if (mobileMenuButton && mobileMenu) { mobileMenuButton.addEventListener('click', function() { mobileMenu.classList.toggle('hidden'); }); }
-
-            // Matrix background animation
+            
             const canvas = document.getElementById('matrix-canvas');
-            const ctx = canvas.getContext('2d');
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
-            const characters = 'アァカサタナハマヤャラワガザダバパイキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン01';
-            const fontSize = 14;
-            let columns = Math.floor(width / fontSize);
-            let drops = Array(columns).fill(1);
-            function draw() {
-                ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
-                ctx.fillRect(0, 0, width, height);
-                ctx.fillStyle = '#00ff41';
-                ctx.font = fontSize + 'px monospace';
-                for (let i = 0; i < drops.length; i++) {
-                    const text = characters.charAt(Math.floor(Math.random() * characters.length));
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    if (drops[i] * fontSize > height && Math.random() > 0.975) {
-                        drops[i] = 0;
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                let width = canvas.width = window.innerWidth;
+                let height = canvas.height = window.innerHeight;
+                const characters = 'アァカサタナハマヤャラワガザダバパイキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン01';
+                const fontSize = 14;
+                let columns = Math.floor(width / fontSize);
+                let drops = Array(columns).fill(1);
+                function draw() {
+                    ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.fillStyle = '#00ff41'; ctx.font = fontSize + 'px monospace';
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                        if (drops[i] * fontSize > height && Math.random() > 0.975) { drops[i] = 0; }
+                        drops[i]++;
                     }
-                    drops[i]++;
                 }
+                setInterval(draw, 33);
+                window.addEventListener('resize', () => {
+                    width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight;
+                    columns = Math.floor(width / fontSize); drops = Array(columns).fill(1);
+                });
             }
-            setInterval(draw, 33);
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-                columns = Math.floor(width / fontSize);
-                drops = Array(columns).fill(1);
-            });
         });
     </script>
 </body>
