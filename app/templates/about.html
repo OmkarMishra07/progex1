@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}About Us | Progex 👑{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+    .terminal-bg {
+        background-color: #0d1117;
+        font-family: 'Fira Code', monospace;
+        color: #00ff88;
+        padding-bottom: 4rem;
+    }
+
+    .terminal-header {
+        font-size: 1.5rem;
+        color: #7ee787;
+        padding: 1rem;
+        border-bottom: 1px solid #21262d;
+        background: #161b22;
+    }
+
+    .ascii-bar {
+        font-family: monospace;
+        color: #3fb950;
+        text-align: center;
+        margin: 2rem 0 1rem;
+    }
+
+    .terminal-card {
+        background-color: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.05);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .terminal-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+    }
+
+    .terminal-card h3 {
+        color: #58a6ff;
+        font-size: 1.25rem;
+        text-align: center;
+    }
+
+    .terminal-label {
+        color: #8b949e;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .terminal-badge {
+        background-color: #21262d;
+        color: #00ff88;
+        border: 1px solid #2ea043;
+        font-size: 0.875rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: bold;
+    }
+
+    .blinking-cursor::after {
+        content: '|';
+        animation: blink 1s steps(1) infinite;
+        margin-left: 5px;
+        color: #00ff88;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+
+    .team-photo {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .social-links a {
+        color: #00ff88;
+        margin: 0 10px;
+        font-size: 1.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .social-links a:hover {
+        color: #58a6ff;
+    }
+</style>
+
+<div class="terminal-bg px-4 max-w-6xl mx-auto">
+    <!-- Terminal Header -->
+    <div class="terminal-header">
+        Progex Developers <span class="Glow"></span>
+    </div>
+
+    <!-- Team ASCII Banner -->
+    <div class="ascii-bar">//======= TEAM MEMBERS =======\\</div>
+
+    <!-- Team Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {% for member in [
+            {
+                'name': 'Prince Raj',
+                'role': 'Database, Backend, Design',
+                'desc': 'Handles schema design, API integration, and UI polish.',
+                'linkedin': 'https://linkedin.com/in/geetprince',
+                'email': 'mailto:prince.raj.ds@gmail.com',
+                'photo': url_for('static', filename='images/prince.png')
+            },
+            {
+                'name': 'Omkar Mishra',
+                'role': 'Frontend, Backend, Design',
+                'desc': 'Leads UI/UX workflows, connects frontend to backend.',
+                'linkedin': 'https://www.linkedin.com/in/omkar-mishra-aa5084296/',
+                'email': 'mailto:omkar794mishra@gmail.com',
+                'photo': url_for('static', filename='images/omkar.png')
+            },
+            {
+                'name': 'Abhilasha Jha',
+                'role': 'Database, Frontend',
+                'desc': 'Supports DB syncing and front-facing component structure.',
+                'linkedin': 'https://www.linkedin.com/in/abhilasha-jha-a54971276/',
+                'email': 'mailto:abhilashajha052@gmail.com',
+                'photo': url_for('static', filename='images/abhilasha.png')
+            }
+        ] %}
+        <div class="terminal-card">
+            <!-- Photo -->
+            <img src="{{ member.photo }}" alt="{{ member.name }}" class="team-photo">
+            <h3>{{ member.name }}</h3>
+            <div class="terminal-label">{{ member.role }}</div>
+            <p class="text-slate-400 text-sm text-center">{{ member.desc }}</p>
+
+            <!-- Social Links -->
+            <div class="social-links mt-4 flex justify-center">
+                <a href="{{ member.linkedin }}" target="_blank" aria-label="LinkedIn">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 
+                        2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 
+                        19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 
+                        1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 
+                        1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 
+                        7-2.777 7 2.476v6.759z"/>
+                    </svg>
+                </a>
+                <a href="{{ member.email }}" aria-label="Email">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M0 3v18h24v-18h-24zm21.518 2l-9.518 
+                        7.713-9.518-7.713h19.036zm-19.518 14v-11.817l10 
+                        8.104 10-8.104v11.817h-20z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Technologies ASCII Banner -->
+    <div class="ascii-bar mt-12">//====== TECH STACK ======\\</div>
+
+    <div class="flex flex-wrap justify-center gap-4 mt-4">
+        {% for tech in ["Python", "Flask", "HTML5", "Tailwind CSS", "JavaScript", "Firebase", "Google Cloud", "Render", "Gunicorn"] %}
+        <span class="terminal-badge">{{ tech }}</span>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

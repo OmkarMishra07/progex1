@@ -148,6 +148,7 @@
                             <a href="{{ url_for('social.leaderboard_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Leaderboard</a>
                             <a href="{{ url_for('challenges.challenges_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Challenges</a>
                             <a href="{{ url_for('study_plan.view_study_plan') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Study Plan</a>
+                            <a href="{{ url_for('main.about_page') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">About</a>
                             <a href="{{ url_for('main.logout') }}" class="text-slate-300 hover:text-accent-red transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Logout</a>
                         {% else %}
                             <a href="{{ url_for('auth.login') }}" class="text-slate-300 hover:text-primary-green transition-colors duration-300 before:content-['>_'] before:opacity-0 hover:before:opacity-100 before:mr-1 before:transition-opacity">Login</a>
@@ -175,6 +176,7 @@
                     <a href="{{ url_for('social.leaderboard_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Leaderboard</a>
                     <a href="{{ url_for('challenges.challenges_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Challenges</a>
                     <a href="{{ url_for('study_plan.view_study_plan') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Study Plan</a>
+                    <a href="{{ url_for('main.about_page') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> About</a>
                     <a href="{{ url_for('main.logout') }}" class="block px-3 py-2 rounded-md text-base font-medium text-accent-red hover:bg-red-900/50 hover:text-white">> Logout</a>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-dark-card hover:text-primary-green">> Login</a>

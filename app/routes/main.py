@@ -97,3 +97,9 @@ def seed_neetcode_route():
     flash(result, 'info')
     # Redirect to the study plan page so you can immediately see the result
     return redirect(url_for('study_plan.view_study_plan'))
+@bp.route('/about')
+def about_page():
+    pending_requests_count = 0
+    if 'leetcode_username' in session:
+        pending_requests_count = len(firebase_service.get_pending_requests(session['leetcode_username']))
+    return render_template('about.html', pending_requests_count=pending_requests_count)
